@@ -1,0 +1,90 @@
+import type {
+  Comment,
+  LeaderboardEntry,
+  Meal,
+  MealTier,
+  MealTime,
+  OnboardingAnswers,
+  Profile,
+  Reaction,
+  StartingDiet,
+  Team,
+  TeamStanding,
+} from './types'
+import type { StreakResult } from './streak'
+import { MockProvider } from './mock/mockClient'
+
+export interface LogMealInput {
+  tier: MealTier
+  mealTime: MealTime
+  mealDate: string
+  caption: string | null
+  hasPhoto: boolean
+  photoDataUrl: string | null
+}
+
+export interface LogMealResult {
+  meal: Meal
+  streak: StreakResult
+  bonus: number // one-time streak-milestone bonus, 0 if none
+  pointsEarned: number // meal points + bonus
+}
+
+export interface OnboardingInput {
+  displayName: string
+  avatarIndex: number
+  teamId: string
+  startingDiet: StartingDiet
+  onboarding: OnboardingAnswers
+  streakGoal: 3 | 5 | 7
+}
+
+/** The single data interface. Every hook talks to this, never to Supabase directly. */
+export interface DataProvider {
+  // session / auth
+  getMyProfile(): Promise<Profile | null>
+  signInWithEmail(email: string): Promise<void>
+  signOut(): Promise<void>
+  completeOnboarding(input: OnboardingInput): Promise<Profile>
+  updateMyProfile(patch: Partial<Profile>): Promise<Profile>
+
+  // reads
+  listProfiles(): Promise<Profile[]>
+  getProfile(id: string): Promise<Profile | null>
+  listTeams(): Promise<Team[]>
+  teamStandings(): Promise<TeamStanding[]>
+  teamMembers(teamId: string): Promise<Profile[]>
+  leaderboard(): Promise<LeaderboardEntry[]>
+  listMeals(): Promise<Meal[]>
+  listUserMeals(userId: string): Promise<Meal[]>
+  myMealsForDate(date: string): Promise<Meal[]>
+  userPoints(userId: string): Promise<number>
+  challengeImpactKg(): Promise<number>
+
+  // meal social
+  listComments(mealId: string): Promise<Comment[]>
+  addComment(mealId: string, body: string): Promise<Comment>
+  listReactions(mealId: string): Promise<Reaction[]>
+  toggleReaction(mealId: string, emoji: string): Promise<void>
+
+  // writes
+  logMeal(input: LogMealInput): Promise<LogMealResult>
+}
+
+const MODE = import.meta.env.VITE_DATA_MODE ?? 'mock'
+
+let provider: DataProvider
+export function getDataProvider(): DataProvider {
+  if (!provider) {
+    if (MODE === 'live') {
+      // Phase 8: swap in SupabaseProvider once the hosted project exists.
+      console.warn('[data] live mode not wired yet; using mock')
+      provider = new MockProvider()
+    } else {
+      provider = new MockProvider()
+    }
+  }
+  return provider
+}
+
+export const data = getDataProvider()
