@@ -4,6 +4,8 @@ import type { OnboardingAnswers, StartingDiet } from '@/lib/types'
 
 export interface OnboardingState {
   step: number // 1..10
+  /** The person's name (step 1) — becomes profile.displayName. */
+  name: string
   email: string
   plantFrequency: OnboardingAnswers['plantFrequency'] | null
   proteins: string[]
@@ -11,7 +13,8 @@ export interface OnboardingState {
   streakGoal: 3 | 5 | 7 | null
   avatarIndex: number | null
   teamId: string | null
-  displayName: string
+  /** What the user named their cow (step 10). */
+  cowName: string
 
   setField: <K extends keyof OnboardingState>(key: K, value: OnboardingState[K]) => void
   toggleProtein: (p: string) => void
@@ -27,6 +30,7 @@ export const useOnboarding = create<OnboardingState>()(
   persist(
     (set) => ({
       step: 1,
+      name: '',
       email: '',
       plantFrequency: null,
       proteins: [],
@@ -34,7 +38,7 @@ export const useOnboarding = create<OnboardingState>()(
       streakGoal: null,
       avatarIndex: null,
       teamId: null,
-      displayName: '',
+      cowName: '',
 
       setField: (key, value) => set({ [key]: value } as Partial<OnboardingState>),
       toggleProtein: (p) =>
@@ -47,6 +51,7 @@ export const useOnboarding = create<OnboardingState>()(
       reset: () =>
         set({
           step: 1,
+          name: '',
           email: '',
           plantFrequency: null,
           proteins: [],
@@ -54,10 +59,11 @@ export const useOnboarding = create<OnboardingState>()(
           streakGoal: null,
           avatarIndex: null,
           teamId: null,
-          displayName: '',
+          cowName: '',
         }),
     }),
-    { name: 'moo.onboarding.v1' },
+    // v2: split the single displayName into name (step 1) + cowName (step 10).
+    { name: 'moo.onboarding.v2' },
   ),
 )
 

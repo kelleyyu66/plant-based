@@ -40,6 +40,8 @@ export interface OnboardingAnswers {
 export interface Profile {
   id: string
   displayName: string
+  /** What the user named their own cow. null = fall back to the mascot name "Moo". */
+  cowName: string | null
   avatarIndex: number
   teamId: string | null
   startingDiet: StartingDiet

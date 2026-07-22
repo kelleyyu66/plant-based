@@ -15,6 +15,7 @@ import {
 import { impactEquivalents } from '@/lib/impact'
 import { activeFact, activeQuest } from '@/lib/quests'
 import { DAILY_FACTS, DAILY_QUESTS, INDIVIDUAL_POINTS_GOAL, topUnlockedAccessory } from '@/content/seed'
+import { cowNameOr } from '@/content/cowNames'
 import { TIER_LABEL } from '@/lib/types'
 
 const ACCESSORY_BADGE: Record<string, string> = { regular: '', hat: '🎉', balloon: '🎈' }
@@ -38,6 +39,7 @@ export function Home() {
   const myStanding = standings?.find((s) => s.team.id === profile?.teamId)
   const accessory = topUnlockedAccessory(myStanding?.points ?? 0)
   const badge = ACCESSORY_BADGE[accessory.spriteVariant] ?? ''
+  const cowName = cowNameOr(profile?.cowName)
 
   const top = leaderboard?.slice(0, 5) ?? []
 
@@ -82,7 +84,9 @@ export function Home() {
           {badge && <span className="absolute -right-2 -top-3 text-2xl">{badge}</span>}
         </div>
         <p className="mt-3 px-6 text-center font-body text-sm text-paper/80">
-          {mealsCount > 0 ? 'Moo is thriving today. Keep it going!' : 'Moo is napping. Log a meal to wake it up!'}
+          {mealsCount > 0
+            ? `${cowName} is thriving today. Keep it going!`
+            : `${cowName} is napping. Log a meal to wake them up!`}
         </p>
       </section>
 

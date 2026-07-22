@@ -5,6 +5,7 @@ import { toCohortDate } from '../dates'
 const onboard = (p: MockProvider) =>
   p.completeOnboarding({
     displayName: 'Test Me',
+    cowName: 'Gerald',
     avatarIndex: 3,
     teamId: 'team-kelley',
     startingDiet: 'meat_or_flexitarian',

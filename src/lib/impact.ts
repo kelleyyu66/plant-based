@@ -66,6 +66,16 @@ export interface StartingImpact {
   swap3ReductionPct: number
 }
 
+/**
+ * Baseline for the onboarding comparison chart. The average American eats plant-based
+ * meals 'rarely', so we run them through the SAME model as the user — comparing our
+ * estimate against an external per-capita stat would not be apples-to-apples.
+ */
+export const US_AVERAGE_PLANT_FREQUENCY = 'rarely'
+export function usAverageImpact(): StartingImpact {
+  return startingImpact(US_AVERAGE_PLANT_FREQUENCY)
+}
+
 export function startingImpact(plantFrequency: string): StartingImpact {
   const mealsPerWeek = 21
   const meaty = MEATY_FRACTION[plantFrequency] ?? 0.5

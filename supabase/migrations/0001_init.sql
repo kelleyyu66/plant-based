@@ -21,6 +21,7 @@ create table teams (
 create table profiles (
   id uuid primary key references auth.users on delete cascade,
   display_name text not null,
+  cow_name text, -- what the user named their own cow; null falls back to "Moo"
   avatar_index int not null check (avatar_index between 0 and 19),
   team_id uuid references teams,
   starting_diet starting_diet not null,

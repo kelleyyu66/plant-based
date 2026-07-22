@@ -47,8 +47,8 @@ export function OnboardingShell({ tone = 'sunset', title, subtitle, children, fo
       </header>
 
       <main className="flex flex-1 flex-col overflow-y-auto no-scrollbar px-6 pb-4">
-        {title && <h1 className="mt-2 font-pixel text-[22px] leading-tight text-ink">{title}</h1>}
-        {subtitle && <p className="mt-2 font-body text-[15px] text-ink-soft">{subtitle}</p>}
+        {title && <h1 className="mt-2 font-pixel text-[24px] leading-tight text-ink">{title}</h1>}
+        {subtitle && <p className="mt-2 font-body text-[16px] leading-relaxed text-ink-soft">{subtitle}</p>}
         <div className="mt-5 flex-1">{children}</div>
       </main>
 

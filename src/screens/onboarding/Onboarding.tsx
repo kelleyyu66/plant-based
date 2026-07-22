@@ -7,10 +7,9 @@ import { MooCow } from '@/components/MooCow'
 import { Sprite } from '@/components/Sprite'
 import { Avatar } from '@/components/Avatar'
 import { AVATAR_COUNT, animalName } from '@/content/animals'
-import { startingImpact } from '@/lib/impact'
+import { startingImpact, usAverageImpact } from '@/lib/impact'
+import { randomCowName } from '@/content/cowNames'
 import { useCompleteOnboarding, useTeams, useTeamMembers } from '@/hooks/useData'
-
-const APP_NAME = 'Moo'
 
 export function Onboarding() {
   const s = useOnboarding()
@@ -29,10 +28,11 @@ export function Onboarding() {
   }
 }
 
-// 1 — App name + headline + magic-link
+// 1 — Headline + name + magic-link
 function Step1() {
-  const { email, setField, next } = useOnboarding()
-  const valid = /.+@.+\..+/.test(email)
+  const { name, email, setField, next } = useOnboarding()
+  const validEmail = /.+@.+\..+/.test(email)
+  const valid = name.trim().length > 0 && validEmail
   return (
     <OnboardingShell
       hideBack
@@ -42,25 +42,38 @@ function Step1() {
         </PixelButton>
       }
     >
-      <div className="flex flex-col items-center pt-6 text-center">
-        <MooCow mood="idle" scale={12} />
-        <h1 className="mt-6 font-pixel text-[30px] leading-none text-ink">{APP_NAME}</h1>
-        <p className="mt-3 max-w-[26ch] font-body text-[17px] font-semibold text-ink">
-          Take care of a cow. Save the planet. Sort of.
+      <div className="flex flex-col items-center pt-4 text-center">
+        <MooCow mood="idle" scale={11} />
+        <h1 className="mt-5 max-w-[16ch] font-pixel text-[26px] leading-tight text-ink">Small meals. Big moo-ves.</h1>
+        <p className="mt-3 max-w-[32ch] font-body text-[16px] leading-relaxed text-ink-soft">
+          Join the cohort’s 7-day plant-based challenge. Every meal makes your cow a little happier and our shared
+          world a little greener.
         </p>
-        <p className="mt-2 max-w-[28ch] font-body text-sm text-ink-soft">
-          A 7-day plant-based challenge for the cohort. Log meals, grow your herd, out-plant your friends.
+        <label className="mt-6 w-full text-left">
+          <span className="font-body text-sm font-extrabold text-ink">Name</span>
+          <input
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setField('name', e.target.value)}
+            placeholder="What should the herd call you?"
+            className="mt-1 w-full rounded-pixel border-2 border-ink bg-paper-2 px-4 py-3 font-body text-[16px] text-ink outline-none placeholder:text-muted"
+          />
+        </label>
+        <label className="mt-4 w-full text-left">
+          <span className="font-body text-sm font-extrabold text-ink">Email</span>
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setField('email', e.target.value)}
+            placeholder="you@email.com"
+            className="mt-1 w-full rounded-pixel border-2 border-ink bg-paper-2 px-4 py-3 font-body text-[16px] text-ink outline-none placeholder:text-muted"
+          />
+        </label>
+        <p className="mt-2 self-start font-body text-sm text-ink-soft">
+          We’ll send a magic link — no password to forget.
         </p>
-        <input
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setField('email', e.target.value)}
-          placeholder="you@email.com"
-          className="mt-7 w-full rounded-pixel border-2 border-ink bg-paper-2 px-4 py-3 font-body text-ink outline-none placeholder:text-muted"
-        />
-        <p className="mt-2 font-body text-xs text-ink-soft">We’ll send a magic link — no password to forget.</p>
       </div>
     </OnboardingShell>
   )
@@ -78,10 +91,10 @@ function Step2() {
         </PixelButton>
       }
     >
-      <div className="flex flex-col items-center gap-5 text-center">
+      <div className="flex flex-col items-start gap-5 text-left">
         <EcosystemScene />
-        <p className="font-pixel text-lg text-ink">Food is ~1/4 of global emissions.</p>
-        <p className="max-w-[30ch] font-body text-[15px] text-ink-soft">
+        <p className="font-pixel text-xl leading-tight text-ink">Food is ~1/4 of global emissions.</p>
+        <p className="font-body text-[17px] leading-relaxed text-ink-soft">
           The good news: what’s on your plate is one of the fastest things you can change. Every plant-based meal helps
           the whole ecosystem — and your cow — thrive.
         </p>
@@ -109,7 +122,7 @@ function EcosystemScene() {
 const FREQ = [
   { v: 'never', label: 'Never' },
   { v: 'rarely', label: 'Rarely' },
-  { v: 'sometimes', label: 'A few times a week' },
+  { v: 'sometimes', label: 'Sometimes' },
   { v: 'often', label: 'Most days' },
   { v: 'mostly', label: 'I’m already veggie/vegan' },
 ] as const
@@ -139,8 +152,12 @@ function Step3() {
   )
 }
 
-// 4 — proteins
-const PROTEIN_OPTIONS = ['Beef', 'Pork', 'Chicken', 'Fish', 'Eggs', 'Dairy', 'Tofu', 'Beans', 'Lentils', 'Nuts']
+// 4 — proteins, grouped
+const PROTEIN_GROUPS = [
+  { label: 'Meat & seafood', items: ['Beef', 'Pork', 'Chicken', 'Fish'] },
+  { label: 'Vegetarian', items: ['Eggs', 'Dairy'] },
+  { label: 'Plant-based', items: ['Tofu', 'Beans', 'Lentils', 'Nuts'] },
+]
 function Step4() {
   const { proteins, toggleProtein, next } = useOnboarding()
   return (
@@ -154,9 +171,16 @@ function Step4() {
         </PixelButton>
       }
     >
-      <div className="flex flex-wrap gap-2">
-        {PROTEIN_OPTIONS.map((p) => (
-          <Chip key={p} label={p} selected={proteins.includes(p)} onClick={() => toggleProtein(p)} />
+      <div className="flex flex-col gap-5">
+        {PROTEIN_GROUPS.map((g) => (
+          <div key={g.label}>
+            <h2 className="mb-2 font-body text-sm font-extrabold uppercase tracking-wide text-ink">{g.label}</h2>
+            <div className="flex flex-wrap gap-2">
+              {g.items.map((p) => (
+                <Chip key={p} label={p} selected={proteins.includes(p)} onClick={() => toggleProtein(p)} />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </OnboardingShell>
@@ -200,29 +224,70 @@ function Step5() {
 function Step6() {
   const { plantFrequency, next } = useOnboarding()
   const impact = startingImpact(plantFrequency ?? 'sometimes')
+  const usAvg = usAverageImpact()
+
+  // Never guilt: a user can land above the average, so the framing has three states.
+  const diffPct = (impact.weeklyLbs - usAvg.weeklyLbs) / usAvg.weeklyLbs
+  const comparison =
+    diffPct < -0.02
+      ? 'You’re already under the US average. Nice start.'
+      : diffPct > 0.02
+        ? 'You’re a bit above the US average — which means you’ve got the most to gain here.'
+        : 'You’re right around the US average.'
+
   return (
     <OnboardingShell
       title="Your starting impact"
       footer={
         <PixelButton full onClick={next}>
-          Set my goal
+          Continue
         </PixelButton>
       }
     >
-      <div className="flex flex-col items-center gap-5 text-center">
-        <div className="rounded-pixel border-2 border-ink bg-paper-2 px-6 py-5">
+      <div className="flex flex-col gap-5">
+        <div className="rounded-pixel border-2 border-ink bg-paper-2 px-6 py-5 text-center">
           <div className="font-pixel text-[34px] leading-none text-ink">{impact.weeklyLbs}</div>
-          <div className="mt-1 font-body text-sm text-ink-soft">lbs CO₂ / week from your meals</div>
+          <div className="mt-1 font-body text-[15px] text-ink-soft">lbs CO₂ / week from your meals</div>
         </div>
+
+        <ImpactBars mine={impact.weeklyLbs} avg={usAvg.weeklyLbs} />
+        <p className="font-body text-[16px] leading-relaxed text-ink-soft">{comparison}</p>
+
         <div className="w-full rounded-pixel border-2 border-ink bg-lime-400/60 px-5 py-4">
-          <p className="font-body text-[15px] text-ink">
+          <p className="font-body text-[16px] text-ink">
             Swapping just <b>3 meals</b> to plant-based could cut that by about{' '}
             <b className="font-pixel">{impact.swap3ReductionPct}%</b>.
           </p>
         </div>
-        <p className="max-w-[28ch] font-body text-sm text-ink-soft">That’s the whole game. Small swaps, real dent.</p>
       </div>
     </OnboardingShell>
+  )
+}
+
+/** Two pixel bars: you vs the average American. design.md tokens, no chart lib. */
+function ImpactBars({ mine, avg }: { mine: number; avg: number }) {
+  const max = Math.max(mine, avg)
+  const rows = [
+    { label: 'You', value: mine, fill: 'bg-lime-400' },
+    { label: 'Average American', value: avg, fill: 'bg-ink/25' },
+  ]
+  return (
+    <div className="flex flex-col gap-3" role="img" aria-label={`You ${mine} lbs, average American ${avg} lbs per week`}>
+      {rows.map((r) => (
+        <div key={r.label}>
+          <div className="mb-1 flex items-baseline justify-between">
+            <span className="font-body text-sm font-extrabold text-ink">{r.label}</span>
+            <span className="font-pixel text-xs text-ink-soft">{r.value} lbs</span>
+          </div>
+          <div className="h-6 w-full rounded-pixel-sm border-2 border-ink bg-paper-2">
+            <div
+              className={`h-full ${r.fill}`}
+              style={{ width: `${Math.max(4, Math.round((r.value / max) * 100))}%` }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -232,8 +297,8 @@ function Step7() {
   const { streakGoal, setField, next } = useOnboarding()
   return (
     <OnboardingShell
-      title="How many days in a row will you take care of Moo?"
-      subtitle="Hit your goal for a bonus. Miss a day? Moo just naps — no guilt."
+      title="How many days in a row will you take care of your cow?"
+      subtitle="Hit your goal for a bonus. Miss a day? Your cow just naps — no guilt."
       footer={
         <PixelButton full disabled={!streakGoal} onClick={next}>
           Continue
@@ -298,7 +363,7 @@ function Step9() {
     <OnboardingShell
       tone="field"
       title="Join a herd"
-      subtitle="Tap a pen to meet the team. You’ll compete together for cow accessories."
+      subtitle="Tap on a cow to meet the team. Work together to climb the leaderboard and earn the title of the Moo VP."
       footer={
         <PixelButton full disabled={!teamId} onClick={next}>
           Join this herd
@@ -310,7 +375,38 @@ function Step9() {
           <TeamPen key={t.id} teamId={t.id} selected={teamId === t.id} onSelect={() => setField('teamId', t.id)} />
         ))}
       </div>
+      {teamId && <HerdRoster teamId={teamId} />}
     </OnboardingShell>
+  )
+}
+
+/** Who's already in the selected herd — shown inline under the pens. */
+function HerdRoster({ teamId }: { teamId: string }) {
+  const { data: teams } = useTeams()
+  const { data: members } = useTeamMembers(teamId)
+  const team = teams?.find((t) => t.id === teamId)
+  if (!team) return null
+  return (
+    <div className="mt-5 rounded-pixel border-2 border-ink bg-paper-2/90 p-4">
+      <h2 className="font-body text-sm font-extrabold uppercase tracking-wide text-ink">
+        Already in {team.captainName}’s Herd
+      </h2>
+      {members && members.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {members.map((m) => (
+            <span
+              key={m.id}
+              className="flex items-center gap-1.5 rounded-full border-2 border-ink/30 bg-paper py-1 pl-1 pr-3"
+            >
+              <Avatar index={m.avatarIndex} size="sm" />
+              <span className="font-body text-sm text-ink">{m.displayName}</span>
+            </span>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-2 font-body text-sm text-ink-soft">Empty pen — you’d be the first one in.</p>
+      )}
+    </div>
   )
 }
 
@@ -331,8 +427,8 @@ function TeamPen({ teamId, selected, onSelect }: { teamId: string; selected: boo
       <div className="grid h-16 w-full place-items-center rounded-pixel-sm border-2 border-ink/30 bg-grass-500">
         <MooCow mood="idle" scale={3} />
       </div>
-      <div className="mt-2 font-body text-sm font-extrabold text-ink">{team.captainName}’s Herd</div>
-      <div className="font-body text-xs text-ink-soft">{spots} spots left</div>
+      <div className="mt-2 font-body text-[15px] font-extrabold text-ink">{team.captainName}’s Herd</div>
+      <div className="font-body text-sm text-ink-soft">{spots} spots left</div>
     </button>
   )
 }
@@ -346,7 +442,8 @@ function Step10() {
 
   const start = async () => {
     await complete.mutateAsync({
-      displayName: s.displayName.trim() || s.email.split('@')[0] || 'Cohort Cow',
+      displayName: s.name.trim() || s.email.split('@')[0] || 'Cohort Cow',
+      cowName: s.cowName.trim() || null,
       avatarIndex: avatar,
       teamId: s.teamId!,
       startingDiet: deriveStartingDiet(s.plantFrequency),
@@ -366,7 +463,7 @@ function Step10() {
       title="Meet your cow"
       footer={
         <PixelButton full onClick={start} disabled={complete.isPending}>
-          {complete.isPending ? 'Waking Moo…' : 'Start challenge'}
+          {complete.isPending ? `Waking ${s.cowName.trim() || 'Moo'}…` : 'Start challenge'}
         </PixelButton>
       }
     >
@@ -375,18 +472,29 @@ function Step10() {
           <MooCow mood="idle" scale={10} />
         </div>
         <label className="w-full text-left">
-          <span className="font-body text-sm font-bold text-ink">Your name</span>
-          <input
-            value={s.displayName}
-            onChange={(e) => s.setField('displayName', e.target.value)}
-            placeholder="What should the herd call you?"
-            className="mt-1 w-full rounded-pixel border-2 border-ink bg-paper-2 px-4 py-3 font-body text-ink outline-none placeholder:text-muted"
-          />
+          <span className="font-body text-sm font-extrabold text-ink">Name your cow</span>
+          <div className="relative mt-1">
+            <input
+              value={s.cowName}
+              onChange={(e) => s.setField('cowName', e.target.value)}
+              placeholder="Gerald? Moorena? You decide."
+              className="w-full rounded-pixel border-2 border-ink bg-paper-2 py-3 pl-4 pr-14 font-body text-[16px] text-ink outline-none placeholder:text-muted"
+            />
+            <button
+              type="button"
+              onClick={() => s.setField('cowName', randomCowName(s.cowName.trim() || undefined))}
+              aria-label="Suggest a random cow name"
+              title="Surprise me"
+              className="absolute right-1.5 top-1/2 grid h-9 w-11 -translate-y-1/2 place-items-center rounded-pixel-sm border-2 border-ink bg-lime-400 text-lg transition-transform active:scale-95"
+            >
+              🎲
+            </button>
+          </div>
         </label>
         <div className="flex items-center gap-3 rounded-pixel border-2 border-ink bg-paper-2 px-4 py-3">
           <Avatar index={avatar} size="md" />
-          <p className="text-left font-body text-sm text-ink-soft">
-            Every plant-based meal helps your cow thrive. Your team’s points unlock accessories — hats, balloons, a
+          <p className="text-left font-body text-[15px] leading-relaxed text-ink-soft">
+            Every plant-based meal makes your cow happy. Your team’s points unlock accessories — hats, balloons, a
             crown if you really commit.
           </p>
         </div>
@@ -415,8 +523,8 @@ function SelectRow({
       }`}
     >
       <span>
-        <span className="block font-body font-extrabold text-ink">{label}</span>
-        {sub && <span className="block font-body text-xs text-ink-soft">{sub}</span>}
+        <span className="block font-body text-[17px] font-extrabold text-ink">{label}</span>
+        {sub && <span className="block font-body text-sm text-ink-soft">{sub}</span>}
       </span>
       <span
         className={`grid h-6 w-6 place-items-center rounded-full border-2 border-ink ${selected ? 'bg-ink text-paper' : ''}`}

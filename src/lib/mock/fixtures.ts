@@ -64,6 +64,7 @@ export function buildMockData(): MockData {
     return {
       id: `u${i}`,
       displayName: name,
+      cowName: null,
       avatarIndex: i % 20,
       teamId: team.id,
       startingDiet,

@@ -32,6 +32,7 @@ export interface LogMealResult {
 
 export interface OnboardingInput {
   displayName: string
+  cowName: string | null
   avatarIndex: number
   teamId: string
   startingDiet: StartingDiet

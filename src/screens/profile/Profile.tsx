@@ -6,9 +6,10 @@ import { PixelButton } from '@/components/PixelButton'
 import { useMyProfile, useTeams, useUserMeals, useUserPoints } from '@/hooks/useData'
 import { data } from '@/lib/dataProvider'
 import { INDIVIDUAL_POINTS_GOAL } from '@/content/seed'
+import { cowNameOr } from '@/content/cowNames'
 
 const FREQ_LABEL: Record<string, string> = {
-  never: 'Never', rarely: 'Rarely', sometimes: 'A few times a week', often: 'Most days', mostly: 'Already veggie/vegan',
+  never: 'Never', rarely: 'Rarely', sometimes: 'Sometimes', often: 'Most days', mostly: 'Already veggie/vegan',
 }
 const FAM_LABEL: Record<string, string> = { new: 'New to this', somewhat: 'Somewhat familiar', very: 'Very familiar' }
 
@@ -52,6 +53,7 @@ export function Profile() {
       {/* Onboarding answers */}
       <section className="mx-5 my-4 rounded-pixel border-2 border-ink bg-paper-2 p-4">
         <h2 className="mb-2 font-pixel text-sm text-ink">About you</h2>
+        <Row label="Your cow" value={cowNameOr(profile.cowName)} />
         <Row label="Plant-based meals" value={FREQ_LABEL[profile.onboarding?.plantFrequency ?? ''] ?? '—'} />
         <Row label="Usual proteins" value={profile.onboarding?.proteins.join(', ') || '—'} />
         <Row label="Climate familiarity" value={FAM_LABEL[profile.onboarding?.climateFamiliarity ?? ''] ?? '—'} />
@@ -74,7 +76,7 @@ export function Profile() {
           ))}
         </div>
       ) : (
-        <EmptyState message="No meals logged yet. Tap the Log button and wake Moo up!" />
+        <EmptyState message={`No meals logged yet. Tap the Log button and wake ${cowNameOr(profile.cowName)} up!`} />
       )}
 
       <div className="px-5 py-8">
