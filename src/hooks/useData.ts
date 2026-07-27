@@ -14,6 +14,7 @@ export const qk = {
   meals: ['meals'] as const,
   userMeals: (id: string) => ['userMeals', id] as const,
   myMealsToday: ['myMealsToday'] as const,
+  dailyQuest: (date: string) => ['dailyQuest', date] as const,
   impact: ['impact'] as const,
   comments: (id: string) => ['comments', id] as const,
   reactions: (id: string) => ['reactions', id] as const,
@@ -33,6 +34,10 @@ export const useUserMeals = (id: string) =>
   useQuery({ queryKey: qk.userMeals(id), queryFn: () => data.listUserMeals(id), enabled: !!id })
 export const useMyMealsToday = () =>
   useQuery({ queryKey: qk.myMealsToday, queryFn: () => data.myMealsForDate(toCohortDate()) })
+export const useDailyQuestProgress = () => {
+  const date = toCohortDate()
+  return useQuery({ queryKey: qk.dailyQuest(date), queryFn: () => data.dailyQuestProgress(date) })
+}
 export const useChallengeImpact = () => useQuery({ queryKey: qk.impact, queryFn: () => data.challengeImpactKg() })
 export const useUserPoints = (id: string) =>
   useQuery({ queryKey: ['userPoints', id], queryFn: () => data.userPoints(id), enabled: !!id })
@@ -57,6 +62,7 @@ export function useLogMeal() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.meals })
       qc.invalidateQueries({ queryKey: qk.myMealsToday })
+      qc.invalidateQueries({ queryKey: ['dailyQuest'] })
       qc.invalidateQueries({ queryKey: qk.leaderboard })
       qc.invalidateQueries({ queryKey: qk.teamStandings })
       qc.invalidateQueries({ queryKey: qk.impact })

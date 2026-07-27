@@ -1,5 +1,6 @@
 import type {
   Comment,
+  DailyQuestProgress,
   LeaderboardEntry,
   Meal,
   MealTier,
@@ -10,6 +11,7 @@ import type {
   StartingDiet,
   Team,
   TeamStanding,
+  QuestTag,
 } from './types'
 import type { StreakResult } from './streak'
 import { MockProvider } from './mock/mockClient'
@@ -21,6 +23,8 @@ export interface LogMealInput {
   caption: string | null
   hasPhoto: boolean
   photoDataUrl: string | null
+  questTags?: QuestTag[]
+  plantProteinGrams?: number
 }
 
 export interface LogMealResult {
@@ -59,6 +63,7 @@ export interface DataProvider {
   listMeals(): Promise<Meal[]>
   listUserMeals(userId: string): Promise<Meal[]>
   myMealsForDate(date: string): Promise<Meal[]>
+  dailyQuestProgress(date: string): Promise<DailyQuestProgress | null>
   userPoints(userId: string): Promise<number>
   challengeImpactKg(): Promise<number>
 

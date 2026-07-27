@@ -18,6 +18,24 @@ export const PROTEINS: ProteinRow[] = [
   { name: 'Pea protein powder', allergen: 'None', whereToBuy: 'Amazon / any grocery' },
 ]
 
+export interface YouTubeChannel {
+  name: string
+  url: string
+}
+
+export const YOUTUBE_CHANNELS: YouTubeChannel[] = [
+  { name: 'Yeung Man Cooking', url: 'https://www.youtube.com/@YEUNGMANCOOKING' },
+  { name: 'Pick Up Limes', url: 'https://www.youtube.com/@PickUpLimes' },
+  { name: 'Gaz Oakley (Avant Garde Vegan)', url: 'https://www.youtube.com/@gazoakleychef' },
+  { name: 'Mark Stache (Sauce Stache)', url: 'https://www.youtube.com/@Mark_Stache' },
+  { name: 'TheeBurgerDude', url: 'https://www.youtube.com/@TheeBurgerDude' },
+  { name: 'Rainbow Plant Life', url: 'https://www.youtube.com/@RainbowPlantLife' },
+  { name: 'Max La Manna', url: 'https://www.youtube.com/@Max_LaManna/' },
+  { name: 'Alfie Cooks', url: 'https://www.youtube.com/@alfiecooks/' },
+  { name: 'Julius Fiedler (Hermann)', url: 'https://www.youtube.com/@BakingHermann' },
+  { name: 'Andrew Bernard', url: 'https://www.youtube.com/@thenarddogcooks' },
+]
+
 export interface Restaurant {
   name: string
   cuisine: string

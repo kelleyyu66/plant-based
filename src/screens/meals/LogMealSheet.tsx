@@ -4,6 +4,7 @@ import { Chip } from '@/components/Chip'
 import { PixelButton } from '@/components/PixelButton'
 import { MEAL_TIERS, MEAL_TIMES, TIER_LABEL, TIME_LABEL, type MealTier, type MealTime } from '@/lib/types'
 import { toCohortDate } from '@/lib/dates'
+import { activeDailyChallenge, challengeTag } from '@/lib/dailyQuest'
 import { compressToDataUrl } from '@/lib/photo'
 import { useLogMeal } from '@/hooks/useData'
 import type { LogMealResult } from '@/lib/dataProvider'
@@ -19,6 +20,8 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   const [time, setTime] = useState<MealTime | null>(null)
   const [date, setDate] = useState(toCohortDate())
   const [caption, setCaption] = useState('')
+  const [questTagSelected, setQuestTagSelected] = useState(false)
+  const [plantProteinGrams, setPlantProteinGrams] = useState('')
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [photoBusy, setPhotoBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -26,7 +29,7 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   const log = useLogMeal()
 
   const reset = () => {
-    setTier(null); setTime(null); setDate(toCohortDate()); setCaption(''); setPhotoUrl(null); setError(null)
+    setTier(null); setTime(null); setDate(toCohortDate()); setCaption(''); setQuestTagSelected(false); setPlantProteinGrams(''); setPhotoUrl(null); setError(null)
   }
 
   const pickPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +56,8 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
         caption: caption.trim() || null,
         hasPhoto: !!photoUrl,
         photoDataUrl: photoUrl,
+        questTags: tag && questTagSelected ? [tag] : [],
+        plantProteinGrams: Math.max(0, Number(plantProteinGrams) || 0),
       })
       reset()
       onClose()
@@ -66,6 +71,15 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   }
 
   const valid = tier && time
+  const challenge = activeDailyChallenge(new Date(`${date}T12:00:00`))
+  const tag = challenge ? challengeTag(challenge.kind) : null
+  const questTagLabel: Record<NonNullable<typeof tag>, string> = {
+    tofu: 'Includes tofu',
+    edamame: 'Includes edamame',
+    five_colours: 'Includes 5 colours',
+    tempeh: 'Includes tempeh',
+    cooked_at_home: 'Cooked or eaten at home',
+  }
 
   return (
     <BottomSheet open={open} onClose={onClose} title="Add a meal">
@@ -91,10 +105,34 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
             type="date"
             value={date}
             max={toCohortDate()}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => {
+              setDate(e.target.value)
+              setQuestTagSelected(false)
+              setPlantProteinGrams('')
+            }}
             className="w-full rounded-pixel border-2 border-ink bg-paper-2 px-3 py-2.5 font-body text-ink outline-none"
           />
         </Field>
+
+        {tag && (
+          <Field label={`Today’s quest: ${challenge?.title}`}>
+            <Chip label={questTagLabel[tag]} selected={questTagSelected} onClick={() => setQuestTagSelected((selected) => !selected)} />
+          </Field>
+        )}
+
+        {challenge?.kind === 'plant_protein_50g' && (
+          <Field label="Plant-based protein (grams)">
+            <input
+              type="number"
+              min="0"
+              inputMode="numeric"
+              value={plantProteinGrams}
+              onChange={(e) => setPlantProteinGrams(e.target.value)}
+              placeholder="e.g. 18"
+              className="w-full rounded-pixel border-2 border-ink bg-paper-2 px-3 py-2.5 font-body text-ink outline-none placeholder:text-muted"
+            />
+          </Field>
+        )}
 
         <Field label="Photo (optional, +1 point 📸)">
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pickPhoto} />

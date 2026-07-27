@@ -109,6 +109,8 @@ export function buildMockData(): MockData {
           mealDate: dateNDaysAgo(days - 1 - d),
           photoUrl: hasPhoto ? photoFor(tier, mealSeq) : null,
           caption: rand() < 0.7 ? pick(CAPTIONS) : null,
+          questTags: [],
+          plantProteinGrams: 0,
           points: computeMealPoints(tier, hasPhoto, null),
           co2SavedKg: co2SavedKg(tier),
           createdAt: dateNDaysAgo(days - 1 - d),

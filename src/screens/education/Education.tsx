@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { BEGINNER_GUIDE, PROTEINS, RESTAURANTS, TRADER_JOES_PICKS } from '@/content/education'
+import { BEGINNER_GUIDE, PROTEINS, RESTAURANTS, TRADER_JOES_PICKS, YOUTUBE_CHANNELS } from '@/content/education'
 
 export function Education() {
   const nav = useNavigate()
@@ -45,6 +45,23 @@ export function Education() {
               ))}
             </tbody>
           </table>
+        </div>
+      </Section>
+
+      <Section title="YouTube channels">
+        <div className="space-y-2">
+          {YOUTUBE_CHANNELS.map((channel) => (
+            <a
+              key={channel.name}
+              href={channel.url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-between rounded-pixel border-2 border-ink bg-paper-2 p-3 font-body font-extrabold text-ink shadow-pixel-sm transition-transform active:translate-y-[2px] active:shadow-none"
+            >
+              <span>{channel.name}</span>
+              <span aria-hidden="true" className="text-sm text-berry-400">▶</span>
+            </a>
+          ))}
         </div>
       </Section>
 

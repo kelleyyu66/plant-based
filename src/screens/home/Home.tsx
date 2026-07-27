@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MooCow } from '@/components/MooCow'
 import { ProgressBar } from '@/components/ProgressBar'
 import { StatRow } from '@/components/StatRow'
 import { LeaderRow } from '@/components/LeaderRow'
+import { DailyQuestCard } from '@/components/DailyQuestCard'
 import {
   useChallengeImpact,
+  useDailyQuestProgress,
   useLeaderboard,
   useMyMealsToday,
   useMyProfile,
@@ -13,10 +16,9 @@ import {
   useUserPoints,
 } from '@/hooks/useData'
 import { impactEquivalents } from '@/lib/impact'
-import { activeFact, activeQuest } from '@/lib/quests'
-import { DAILY_FACTS, DAILY_QUESTS, INDIVIDUAL_POINTS_GOAL, topUnlockedAccessory } from '@/content/seed'
+import { activeFact } from '@/lib/quests'
+import { DAILY_FACTS, INDIVIDUAL_POINTS_GOAL, topUnlockedAccessory } from '@/content/seed'
 import { cowNameOr } from '@/content/cowNames'
-import { TIER_LABEL } from '@/lib/types'
 
 const ACCESSORY_BADGE: Record<string, string> = { regular: '', hat: '🎉', balloon: '🎈' }
 
@@ -29,9 +31,11 @@ export function Home() {
   const { data: leaderboard } = useLeaderboard()
   const { data: standings } = useTeamStandings()
   const { data: teams } = useTeams()
+  const { data: dailyQuest } = useDailyQuestProgress()
 
-  const quest = activeQuest(DAILY_QUESTS)
-  const fact = activeFact(DAILY_FACTS)
+  const dailyFact = activeFact(DAILY_FACTS)
+  const [factIndex, setFactIndex] = useState(() => Math.max(0, DAILY_FACTS.indexOf(dailyFact ?? DAILY_FACTS[0])))
+  const fact = DAILY_FACTS[factIndex]
   const impact = impactEquivalents(impactKg)
   const mealsCount = mealsToday?.length ?? 0
 
@@ -91,15 +95,7 @@ export function Home() {
       </section>
 
       {/* Daily quest */}
-      {quest && (
-        <section className="mx-5 my-3 rounded-pixel border-2 border-lime-400 bg-lime-400/15 px-4 py-3">
-          <div className="font-pixel text-xs text-lime-400">DAILY QUEST · {quest.multiplier}×</div>
-          <div className="mt-1 font-body text-sm font-extrabold text-paper">{quest.title}</div>
-          <div className="font-body text-xs text-paper/70">
-            {quest.tier ? `Log a ${TIER_LABEL[quest.tier]} meal for ${quest.multiplier}× points.` : quest.description}
-          </div>
-        </section>
-      )}
+      {dailyQuest && <DailyQuestCard progress={dailyQuest} />}
 
       {/* Challenge-wide impact */}
       <section className="mx-5 my-3 rounded-pixel border-2 border-black/30 bg-forest-800 p-4">
@@ -115,9 +111,29 @@ export function Home() {
 
       {/* Daily fact */}
       {fact && (
-        <section className="mx-5 my-3 rounded-pixel border-2 border-black/30 bg-forest-700 p-4">
-          <h3 className="font-pixel text-sm text-paper">Did you know?</h3>
-          <p className="mt-1 font-body text-sm text-paper/90">{fact.body}</p>
+        <section className="mx-5 my-3 h-36 rounded-pixel border-2 border-black/30 bg-forest-700 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="font-pixel text-sm text-paper">Did you know?</h3>
+            <div className="ml-auto flex shrink-0 items-center gap-[0.5em]">
+              <button
+                type="button"
+                aria-label="Previous fact"
+                onClick={() => setFactIndex((index) => (index - 1 + DAILY_FACTS.length) % DAILY_FACTS.length)}
+                className="grid h-8 w-8 place-items-center rounded-pixel border-2 border-paper/40 font-pixel text-lg text-paper transition-transform active:translate-y-[2px] active:shadow-pixel-inset"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                aria-label="Next fact"
+                onClick={() => setFactIndex((index) => (index + 1) % DAILY_FACTS.length)}
+                className="grid h-8 w-8 place-items-center rounded-pixel border-2 border-paper/40 font-pixel text-lg text-paper transition-transform active:translate-y-[2px] active:shadow-pixel-inset"
+              >
+                ›
+              </button>
+            </div>
+          </div>
+          <p className="mt-2 font-body text-sm text-paper/90">{fact.body}</p>
         </section>
       )}
 

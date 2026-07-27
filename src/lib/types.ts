@@ -2,6 +2,8 @@ export type MealTier = 'vegan' | 'vegetarian' | 'fish' | 'chicken' | 'pork' | 'b
 export type MealTime = 'breakfast' | 'lunch' | 'dinner'
 export type StartingDiet = 'vegetarian' | 'meat_or_flexitarian'
 export type SpriteVariant = 'regular' | 'hat' | 'balloon'
+export type QuestTag = 'tofu' | 'edamame' | 'five_colours' | 'tempeh' | 'cooked_at_home'
+export type DailyChallengeKind = QuestTag | 'plant_protein_50g' | 'all_plant_meals'
 
 export const MEAL_TIERS: MealTier[] = ['vegan', 'vegetarian', 'fish', 'chicken', 'pork', 'beef']
 export const MEAL_TIMES: MealTime[] = ['breakfast', 'lunch', 'dinner']
@@ -61,6 +63,9 @@ export interface Meal {
   mealDate: string // YYYY-MM-DD
   photoUrl: string | null
   caption: string | null
+  /** User-supplied meal details used to validate the day’s quest. */
+  questTags: QuestTag[]
+  plantProteinGrams: number
   points: number
   co2SavedKg: number
   createdAt: string
@@ -94,6 +99,23 @@ export interface DailyQuest {
   tier: MealTier | null // null = any plant-based meal
   multiplier: number
   description: string
+}
+
+export interface DailyChallenge {
+  dayIndex: number
+  kind: DailyChallengeKind
+  title: string
+}
+
+export interface DailyQuestTask {
+  id: 'plant_meal' | 'three_meals' | DailyChallengeKind
+  title: string
+  bonusPoints: number
+  completed: boolean
+}
+
+export interface DailyQuestProgress {
+  tasks: DailyQuestTask[]
 }
 
 export interface Accessory {

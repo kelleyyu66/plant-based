@@ -4,7 +4,7 @@ import type {
   LogMealResult,
   OnboardingInput,
 } from '../dataProvider'
-import type { Comment, LeaderboardEntry, Meal, Profile, Reaction, Team, TeamStanding } from '../types'
+import type { Comment, DailyQuestProgress, LeaderboardEntry, Meal, Profile, Reaction, Team, TeamStanding } from '../types'
 import { TEAMS } from '@/content/seed'
 import { DAILY_QUESTS } from '@/content/seed'
 import { computeMealPoints } from '../points'
@@ -12,6 +12,7 @@ import { co2SavedKg } from '../impact'
 import { applyLog, streakBonus } from '../streak'
 import { activeQuest } from '../quests'
 import { toCohortDate } from '../dates'
+import { activeDailyChallenge, dailyQuestProgress } from '../dailyQuest'
 import { buildMockData, type MockData } from './fixtures'
 
 const LS_KEY = 'moo.mock.v1'
@@ -169,6 +170,13 @@ export class MockProvider implements DataProvider {
     if (!this.p.me) return []
     return this.p.myMeals.filter((m) => m.userId === ME_ID && m.mealDate === date)
   }
+  async dailyQuestProgress(date: string): Promise<DailyQuestProgress | null> {
+    if (!this.p.me) return null
+    return dailyQuestProgress(
+      this.p.myMeals.filter((meal) => meal.userId === ME_ID && meal.mealDate === date),
+      activeDailyChallenge(new Date(`${date}T12:00:00`)),
+    )
+  }
   async challengeImpactKg() {
     return this.allMeals().reduce((s, m) => s + m.co2SavedKg, 0)
   }
@@ -233,6 +241,8 @@ export class MockProvider implements DataProvider {
       mealDate: input.mealDate,
       photoUrl: input.photoDataUrl,
       caption: input.caption,
+      questTags: input.questTags ?? [],
+      plantProteinGrams: input.plantProteinGrams ?? 0,
       points,
       co2SavedKg: co2SavedKg(input.tier),
       createdAt: new Date().toISOString(),

@@ -1,6 +1,6 @@
 // Seed content shared by the mock backend and the Supabase seeder (scripts/seed.mjs).
 // Teams, daily facts, daily quests, and the cow accessory ladder.
-import type { Accessory, DailyFact, DailyQuest, Team } from '@/lib/types'
+import type { Accessory, DailyChallenge, DailyFact, DailyQuest, Team } from '@/lib/types'
 
 export const TEAMS: Team[] = [
   { id: 'team-kelley', name: 'Kelley’s Herd', captainName: 'Kelley', slug: 'kelley', capacity: 15, color: '#8FCB3C', sort: 0 },
@@ -10,41 +10,26 @@ export const TEAMS: Team[] = [
 ]
 
 export const DAILY_FACTS: DailyFact[] = [
-  {
-    dayIndex: 0,
-    body: 'You don’t have to give up meat altogether to make a difference. Even small shifts — eating less meat and more plants, or switching from beef to chicken — can reduce your climate footprint.',
-    sourceUrl: 'https://www.epa.gov/ghgemissions',
-  },
-  {
-    dayIndex: 1,
-    body: 'Beef produces roughly 6–10× the greenhouse gas of chicken per gram of protein, and dozens of times more than beans.',
-    sourceUrl: 'https://ourworldindata.org/food-choice-vs-eating-local',
-  },
-  {
-    dayIndex: 2,
-    body: 'A single beef burger can take ~1,700 liters of water to produce, mostly to grow feed. A bean burger is a tiny fraction of that.',
-    sourceUrl: 'https://waterfootprint.org',
-  },
-  {
-    dayIndex: 3,
-    body: 'Lentils fix nitrogen back into the soil as they grow — they literally help fertilize the field. Overachievers.',
-    sourceUrl: 'https://www.fao.org/pulses-2016',
-  },
-  {
-    dayIndex: 4,
-    body: 'Tofu, tempeh, edamame, and soy curls all come from the same humble soybean — one of the most protein-dense plants on earth.',
-    sourceUrl: 'https://fdc.nal.usda.gov',
-  },
-  {
-    dayIndex: 5,
-    body: 'If everyone in the US skipped meat and cheese one day a week, it would be like taking ~7.6 million cars off the road for a year.',
-    sourceUrl: 'https://www.ewg.org/meateatersguide',
-  },
-  {
-    dayIndex: 6,
-    body: 'Plants can absolutely hit your protein goals: a cup of lentils has ~18g, a block of tofu ~20g, and a scoop of pea protein ~25g.',
-    sourceUrl: 'https://fdc.nal.usda.gov',
-  },
+  { dayIndex: 0, body: 'Food production is responsible for about one-third of global greenhouse gas emissions.', sourceUrl: null },
+  { dayIndex: 1, body: 'Producing 1 kg of beef emits over 60× more greenhouse gases than producing 1 kg of lentils.', sourceUrl: null },
+  { dayIndex: 2, body: 'It takes around 15,000 liters of water to produce 1 kg of beef.', sourceUrl: null },
+  { dayIndex: 3, body: 'A plant-based diet can cut your food-related carbon footprint by around half.', sourceUrl: null },
+  { dayIndex: 4, body: 'Livestock uses nearly 80% of the world’s agricultural land, but provides less than 20% of our calories.', sourceUrl: null },
+  { dayIndex: 5, body: 'Beans are among the most sustainable sources of protein on the planet.', sourceUrl: null },
+  { dayIndex: 6, body: 'Eating 30 different plant foods each week is associated with a more diverse gut microbiome.', sourceUrl: null },
+  { dayIndex: 7, body: 'Most adults don’t eat enough fiber, and plants are its richest natural source.', sourceUrl: null },
+  { dayIndex: 8, body: 'Lentils contain more protein per acre than beef while requiring a fraction of the land.', sourceUrl: null },
+  { dayIndex: 9, body: 'Reducing demand for animal agriculture helps protect forests, wildlife habitats, and biodiversity.', sourceUrl: null },
+  { dayIndex: 10, body: 'If everyone adopted a plant-rich diet, global agricultural land use could be reduced dramatically while still feeding the world’s population.', sourceUrl: null },
+  { dayIndex: 11, body: 'Eating a variety of colorful fruits and vegetables helps you consume a wider range of vitamins and antioxidants.', sourceUrl: null },
+  { dayIndex: 12, body: 'Many elite endurance athletes include predominantly plant-based diets because carbohydrates are the body’s preferred fuel for endurance exercise.', sourceUrl: null },
+  { dayIndex: 13, body: 'Nuts and seeds provide healthy fats, protein, fiber, and important minerals like magnesium and zinc.', sourceUrl: null },
+  { dayIndex: 14, body: 'Whole plant foods feed the beneficial bacteria in your gut, which produce compounds linked to better digestive and metabolic health.', sourceUrl: null },
+  { dayIndex: 15, body: 'You don’t have to be 100% plant-based to make a difference—even replacing a few meat-based meals each week lowers your environmental impact.', sourceUrl: null },
+  { dayIndex: 16, body: 'The environmental impact of what you eat is often greater than where your food comes from.', sourceUrl: null },
+  { dayIndex: 17, body: 'Dark leafy greens like spinach and kale are packed with vitamins A, C, K, folate, and iron.', sourceUrl: null },
+  { dayIndex: 18, body: 'Legumes like beans, peas, and lentils naturally add nitrogen to the soil, reducing the need for synthetic fertilizers.', sourceUrl: null },
+  { dayIndex: 19, body: 'Plant-based eating isn’t all-or-nothing—every plant-based meal contributes to lower emissions, reduced resource use, and better diet quality.', sourceUrl: null },
 ]
 
 export const DAILY_QUESTS: DailyQuest[] = [
@@ -55,6 +40,17 @@ export const DAILY_QUESTS: DailyQuest[] = [
   { dayIndex: 4, title: 'Plant Friday', tier: null, multiplier: 2, description: 'Any plant-based meal earns double.' },
   { dayIndex: 5, title: 'Green Weekend', tier: 'vegan', multiplier: 2, description: 'Vegan meals score double all weekend.' },
   { dayIndex: 6, title: 'Sunday Funday', tier: null, multiplier: 2, description: 'Any plant-based meal earns double.' },
+]
+
+// The first two tasks are always the same; this third task rotates daily.
+export const DAILY_CHALLENGES: DailyChallenge[] = [
+  { dayIndex: 0, kind: 'tofu', title: 'Eat tofu' },
+  { dayIndex: 1, kind: 'edamame', title: 'Eat edamame' },
+  { dayIndex: 2, kind: 'five_colours', title: 'Eat 5 colours today' },
+  { dayIndex: 3, kind: 'tempeh', title: 'Eat tempeh' },
+  { dayIndex: 4, kind: 'cooked_at_home', title: 'Eat or cook all three meals at home' },
+  { dayIndex: 5, kind: 'plant_protein_50g', title: 'Get at least 50g of plant-based protein' },
+  { dayIndex: 6, kind: 'all_plant_meals', title: 'Make all meals plant-based' },
 ]
 
 // Cow accessory ladder — unlocks at team point thresholds (team points = sum of members).

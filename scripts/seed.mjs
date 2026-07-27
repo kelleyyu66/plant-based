@@ -40,6 +40,16 @@ const QUESTS = [
   { day_index: 6, title: 'Sunday Funday', tier: null, multiplier: 2, description: 'Any plant-based meal earns double.' },
 ]
 
+const DAILY_CHALLENGES = [
+  { day_index: 0, kind: 'tofu', title: 'Eat tofu' },
+  { day_index: 1, kind: 'edamame', title: 'Eat edamame' },
+  { day_index: 2, kind: 'five_colours', title: 'Eat 5 colours today' },
+  { day_index: 3, kind: 'tempeh', title: 'Eat tempeh' },
+  { day_index: 4, kind: 'cooked_at_home', title: 'Eat or cook all three meals at home' },
+  { day_index: 5, kind: 'plant_protein_50g', title: 'Get at least 50g of plant-based protein' },
+  { day_index: 6, kind: 'all_plant_meals', title: 'Make all meals plant-based' },
+]
+
 const ACCESSORIES = [
   { sort: 0, name: 'Fresh Off the Farm', threshold_points: 0, sprite_variant: 'regular', description: 'Your cow, au naturel.' },
   { sort: 1, name: 'Party Moo', threshold_points: 150, sprite_variant: 'hat', description: 'A tiny party hat.' },
@@ -57,5 +67,6 @@ async function upsert(table, rows, onConflict) {
 await upsert('teams', TEAMS, 'slug')
 await upsert('daily_facts', FACTS, 'day_index')
 await upsert('daily_quests', QUESTS, 'day_index')
+await upsert('daily_challenges', DAILY_CHALLENGES, 'day_index')
 await upsert('accessories', ACCESSORIES, 'sort')
 console.log('seed complete.')
