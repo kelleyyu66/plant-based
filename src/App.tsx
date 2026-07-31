@@ -8,7 +8,6 @@ import { Home } from './screens/home/Home'
 import { Meals } from './screens/meals/Meals'
 import { MealDetail } from './screens/meals/MealDetail'
 import { Leaderboard } from './screens/leaderboard/Leaderboard'
-import { Teams } from './screens/teams/Teams'
 import { Profile } from './screens/profile/Profile'
 import { PersonProfile } from './screens/profile/PersonProfile'
 import { Education } from './screens/education/Education'
@@ -39,7 +38,6 @@ export function App() {
           <Route path="/meals" element={<Meals />} />
           <Route path="/meals/:id" element={<MealDetail />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/teams" element={<Teams />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:id" element={<PersonProfile />} />
           <Route path="/education" element={<Education />} />

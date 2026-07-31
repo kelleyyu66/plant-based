@@ -4,7 +4,6 @@ const TABS = [
   { to: '/home', label: 'Home', icon: '🏠' },
   { to: '/meals', label: 'Meals', icon: '🍴' },
   { to: '/leaderboard', label: 'Board', icon: '🏆' },
-  { to: '/teams', label: 'Teams', icon: '🐄' },
   { to: '/profile', label: 'You', icon: '⭐' },
 ]
 

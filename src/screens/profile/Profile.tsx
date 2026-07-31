@@ -3,7 +3,7 @@ import { Avatar } from '@/components/Avatar'
 import { MealCard } from '@/components/MealCard'
 import { EmptyState } from '@/components/EmptyState'
 import { PixelButton } from '@/components/PixelButton'
-import { useMyProfile, useTeams, useUserMeals, useUserPoints } from '@/hooks/useData'
+import { useMyProfile, useUserMeals, useUserPoints } from '@/hooks/useData'
 import { data } from '@/lib/dataProvider'
 import { INDIVIDUAL_POINTS_GOAL } from '@/content/seed'
 import { cowNameOr } from '@/content/cowNames'
@@ -18,10 +18,8 @@ export function Profile() {
   const { data: profile } = useMyProfile()
   const { data: meals } = useUserMeals('me')
   const { data: points = 0 } = useUserPoints('me')
-  const { data: teams } = useTeams()
 
   if (!profile) return null
-  const team = teams?.find((t) => t.id === profile.teamId)
 
   const signOut = async () => {
     await data.signOut()
@@ -39,7 +37,7 @@ export function Profile() {
         <Avatar index={profile.avatarIndex} size="lg" />
         <div>
           <div className="font-pixel text-lg text-ink">{profile.displayName}</div>
-          <div className="font-body text-sm text-ink-soft">{team?.name}</div>
+          <div className="font-body text-sm text-ink-soft">Cohort challenger</div>
         </div>
       </div>
 

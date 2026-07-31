@@ -8,8 +8,7 @@ import { Sprite } from '@/components/Sprite'
 import { Avatar } from '@/components/Avatar'
 import { AVATAR_COUNT, animalName } from '@/content/animals'
 import { startingImpact, usAverageImpact } from '@/lib/impact'
-import { randomCowName } from '@/content/cowNames'
-import { useCompleteOnboarding, useTeams, useTeamMembers } from '@/hooks/useData'
+import { useCompleteOnboarding } from '@/hooks/useData'
 
 export function Onboarding() {
   const s = useOnboarding()
@@ -22,8 +21,6 @@ export function Onboarding() {
     case 6: return <Step6 />
     case 7: return <Step7 />
     case 8: return <Step8 />
-    case 9: return <Step9 />
-    case 10: return <Step10 />
     default: return <Step1 />
   }
 }
@@ -291,40 +288,8 @@ function ImpactBars({ mine, avg }: { mine: number; avg: number }) {
   )
 }
 
-// 7 — streak goal
-const GOALS = [3, 5, 7] as const
+// 7 — choose avatar
 function Step7() {
-  const { streakGoal, setField, next } = useOnboarding()
-  return (
-    <OnboardingShell
-      title="How many days in a row will you take care of your cow?"
-      subtitle="Hit your goal for a bonus. Miss a day? Your cow just naps — no guilt."
-      footer={
-        <PixelButton full disabled={!streakGoal} onClick={next}>
-          Continue
-        </PixelButton>
-      }
-    >
-      <div className="flex justify-center gap-4">
-        {GOALS.map((g) => (
-          <button
-            key={g}
-            onClick={() => setField('streakGoal', g)}
-            className={`flex h-28 w-24 flex-col items-center justify-center rounded-pixel border-2 border-ink transition-transform active:scale-95 ${
-              streakGoal === g ? 'bg-lime-400 shadow-pixel' : 'bg-paper-2'
-            }`}
-          >
-            <span className="font-pixel text-[32px] text-ink">{g}</span>
-            <span className="font-body text-xs text-ink-soft">days</span>
-          </button>
-        ))}
-      </div>
-    </OnboardingShell>
-  )
-}
-
-// 8 — choose avatar
-function Step8() {
   const { avatarIndex, setField, next } = useOnboarding()
   return (
     <OnboardingShell
@@ -355,86 +320,8 @@ function Step8() {
   )
 }
 
-// 9 — join a team (farm view)
-function Step9() {
-  const { teamId, setField, next } = useOnboarding()
-  const { data: teams } = useTeams()
-  return (
-    <OnboardingShell
-      tone="field"
-      title="Join a herd"
-      subtitle="Tap on a cow to meet the team. Work together to climb the leaderboard and earn the title of the Moo VP."
-      footer={
-        <PixelButton full disabled={!teamId} onClick={next}>
-          Join this herd
-        </PixelButton>
-      }
-    >
-      <div className="grid grid-cols-2 gap-3">
-        {teams?.map((t) => (
-          <TeamPen key={t.id} teamId={t.id} selected={teamId === t.id} onSelect={() => setField('teamId', t.id)} />
-        ))}
-      </div>
-      {teamId && <HerdRoster teamId={teamId} />}
-    </OnboardingShell>
-  )
-}
-
-/** Who's already in the selected herd — shown inline under the pens. */
-function HerdRoster({ teamId }: { teamId: string }) {
-  const { data: teams } = useTeams()
-  const { data: members } = useTeamMembers(teamId)
-  const team = teams?.find((t) => t.id === teamId)
-  if (!team) return null
-  return (
-    <div className="mt-5 rounded-pixel border-2 border-ink bg-paper-2/90 p-4">
-      <h2 className="font-body text-sm font-extrabold uppercase tracking-wide text-ink">
-        Already in {team.captainName}’s Herd
-      </h2>
-      {members && members.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {members.map((m) => (
-            <span
-              key={m.id}
-              className="flex items-center gap-1.5 rounded-full border-2 border-ink/30 bg-paper py-1 pl-1 pr-3"
-            >
-              <Avatar index={m.avatarIndex} size="sm" />
-              <span className="font-body text-sm text-ink">{m.displayName}</span>
-            </span>
-          ))}
-        </div>
-      ) : (
-        <p className="mt-2 font-body text-sm text-ink-soft">Empty pen — you’d be the first one in.</p>
-      )}
-    </div>
-  )
-}
-
-function TeamPen({ teamId, selected, onSelect }: { teamId: string; selected: boolean; onSelect: () => void }) {
-  const { data: teams } = useTeams()
-  const { data: members } = useTeamMembers(teamId)
-  const team = teams?.find((t) => t.id === teamId)
-  if (!team) return null
-  const spots = Math.max(0, team.capacity - (members?.length ?? 0))
-  return (
-    <button
-      onClick={onSelect}
-      className={`flex flex-col items-center rounded-pixel border-2 p-3 transition-transform active:scale-95 ${
-        selected ? 'border-ink shadow-pixel' : 'border-ink/40'
-      }`}
-      style={{ background: selected ? team.color : '#ffffffcc' }}
-    >
-      <div className="grid h-16 w-full place-items-center rounded-pixel-sm border-2 border-ink/30 bg-grass-500">
-        <MooCow mood="idle" scale={3} />
-      </div>
-      <div className="mt-2 font-body text-[15px] font-extrabold text-ink">{team.captainName}’s Herd</div>
-      <div className="font-body text-sm text-ink-soft">{spots} spots left</div>
-    </button>
-  )
-}
-
-// 10 — meet your cow
-function Step10() {
+// 8 — meet your cow
+function Step8() {
   const nav = useNavigate()
   const s = useOnboarding()
   const complete = useCompleteOnboarding()
@@ -443,16 +330,16 @@ function Step10() {
   const start = async () => {
     await complete.mutateAsync({
       displayName: s.name.trim() || s.email.split('@')[0] || 'Cohort Cow',
-      cowName: s.cowName.trim() || null,
+      cowName: null, // the cow is just Moo
       avatarIndex: avatar,
-      teamId: s.teamId!,
+      teamId: null,
       startingDiet: deriveStartingDiet(s.plantFrequency),
       onboarding: {
         plantFrequency: s.plantFrequency ?? 'sometimes',
         proteins: s.proteins,
         climateFamiliarity: s.climateFamiliarity ?? 'new',
       },
-      streakGoal: s.streakGoal ?? 7,
+      streakGoal: 7,
     })
     s.reset()
     nav('/home', { replace: true })
@@ -460,10 +347,10 @@ function Step10() {
 
   return (
     <OnboardingShell
-      title="Meet your cow"
+      title="Meet your cow, Moo"
       footer={
         <PixelButton full onClick={start} disabled={complete.isPending}>
-          {complete.isPending ? `Waking ${s.cowName.trim() || 'Moo'}…` : 'Start challenge'}
+          {complete.isPending ? 'Waking Moo…' : 'Start challenge'}
         </PixelButton>
       }
     >
@@ -471,31 +358,10 @@ function Step10() {
         <div className="grid h-44 w-full place-items-center rounded-pixel border-2 border-ink bg-gradient-to-b from-grass-300 to-grass-500">
           <MooCow mood="idle" scale={10} />
         </div>
-        <label className="w-full text-left">
-          <span className="font-body text-sm font-extrabold text-ink">Name your cow</span>
-          <div className="relative mt-1">
-            <input
-              value={s.cowName}
-              onChange={(e) => s.setField('cowName', e.target.value)}
-              placeholder="Gerald? Moorena? You decide."
-              className="w-full rounded-pixel border-2 border-ink bg-paper-2 py-3 pl-4 pr-14 font-body text-[16px] text-ink outline-none placeholder:text-muted"
-            />
-            <button
-              type="button"
-              onClick={() => s.setField('cowName', randomCowName(s.cowName.trim() || undefined))}
-              aria-label="Suggest a random cow name"
-              title="Surprise me"
-              className="absolute right-1.5 top-1/2 grid h-9 w-11 -translate-y-1/2 place-items-center rounded-pixel-sm border-2 border-ink bg-lime-400 text-lg transition-transform active:scale-95"
-            >
-              🎲
-            </button>
-          </div>
-        </label>
         <div className="flex items-center gap-3 rounded-pixel border-2 border-ink bg-paper-2 px-4 py-3">
           <Avatar index={avatar} size="md" />
           <p className="text-left font-body text-[15px] leading-relaxed text-ink-soft">
-            Every plant-based meal makes your cow happy. Your team’s points unlock accessories — hats, balloons, a
-            crown if you really commit.
+            This is Moo. Every plant-based meal you log keeps Moo happy — and the planet a little greener all week.
           </p>
         </div>
       </div>

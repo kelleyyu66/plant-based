@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { OnboardingAnswers, StartingDiet } from '@/lib/types'
 
 export interface OnboardingState {
-  step: number // 1..10
+  step: number // 1..8
   /** The person's name (step 1) — becomes profile.displayName. */
   name: string
   email: string
@@ -24,7 +24,7 @@ export interface OnboardingState {
   reset: () => void
 }
 
-const TOTAL = 10
+const TOTAL = 8
 
 export const useOnboarding = create<OnboardingState>()(
   persist(
@@ -62,8 +62,8 @@ export const useOnboarding = create<OnboardingState>()(
           cowName: '',
         }),
     }),
-    // v2: split the single displayName into name (step 1) + cowName (step 10).
-    { name: 'moo.onboarding.v2' },
+    // v3: dropped streak-goal + team steps; flow is 8 steps.
+    { name: 'moo.onboarding.v3' },
   ),
 )
 

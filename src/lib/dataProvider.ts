@@ -38,7 +38,7 @@ export interface OnboardingInput {
   displayName: string
   cowName: string | null
   avatarIndex: number
-  teamId: string
+  teamId: string | null
   startingDiet: StartingDiet
   onboarding: OnboardingAnswers
   streakGoal: 3 | 5 | 7
