@@ -355,22 +355,26 @@ function MeetYourCow() {
   const avatar = s.avatarIndex ?? 0
 
   const start = async () => {
-    await complete.mutateAsync({
-      displayName: s.name.trim() || s.email.split('@')[0] || 'Cohort Cow',
-      email: s.email.trim() || null,
-      cowName: null, // the cow is just Moo
-      avatarIndex: avatar,
-      teamId: null,
-      startingDiet: deriveStartingDiet(s.plantFrequency),
-      onboarding: {
-        plantFrequency: s.plantFrequency ?? 'sometimes',
-        proteins: s.proteins,
-        climateFamiliarity: s.climateFamiliarity ?? 'new',
-      },
-      streakGoal: 7,
-    })
-    s.reset()
-    nav('/home', { replace: true })
+    try {
+      await complete.mutateAsync({
+        displayName: s.name.trim() || s.email.split('@')[0] || 'Cohort Cow',
+        email: s.email.trim() || null,
+        cowName: null, // the cow is just Moo
+        avatarIndex: avatar,
+        teamId: null,
+        startingDiet: deriveStartingDiet(s.plantFrequency),
+        onboarding: {
+          plantFrequency: s.plantFrequency ?? 'sometimes',
+          proteins: s.proteins,
+          climateFamiliarity: s.climateFamiliarity ?? 'new',
+        },
+        streakGoal: 7,
+      })
+      s.reset()
+      nav('/home', { replace: true })
+    } catch {
+      // SupabaseProvider logs the structured Supabase error; keep onboarding state intact for retry.
+    }
   }
 
   return (
@@ -388,6 +392,11 @@ function MeetYourCow() {
         <p className="max-w-[34ch] font-mono text-[15px] leading-relaxed text-muted">
           This is Moo. Every plant-based meal you log keeps Moo happy — and the planet a little greener all week.
         </p>
+        {complete.isError && (
+          <p className="font-mono text-sm leading-relaxed text-red-700" role="alert">
+            We couldn’t save your profile. Verify the email link first, then try again.
+          </p>
+        )}
       </div>
     </OnboardingShell>
   )
