@@ -1,22 +1,25 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Camera } from '@phosphor-icons/react'
 import { BottomSheet } from '@/components/BottomSheet'
 import { Chip } from '@/components/Chip'
 import { PixelButton } from '@/components/PixelButton'
-import { MEAL_TIERS, MEAL_TIMES, TIER_LABEL, TIME_LABEL, type MealTier, type MealTime } from '@/lib/types'
+import { MEAL_TIERS, MEAL_TIMES, TIER_LABEL, TIME_LABEL, type Meal, type MealTier, type MealTime } from '@/lib/types'
 import { toCohortDate } from '@/lib/dates'
 import { activeDailyChallenge, challengeTag } from '@/lib/dailyQuest'
 import { compressToDataUrl } from '@/lib/photo'
-import { useLogMeal } from '@/hooks/useData'
+import { useDeleteMeal, useLogMeal, useUpdateMeal } from '@/hooks/useData'
 import type { LogMealResult } from '@/lib/dataProvider'
 
 interface LogMealSheetProps {
   open: boolean
   onClose: () => void
-  onLogged: (result: LogMealResult) => void
+  /** Fires on a NEW log (celebration). Not called when editing. */
+  onLogged?: (result: LogMealResult) => void
+  /** When set, the sheet edits this existing meal instead of logging a new one. */
+  meal?: Meal | null
 }
 
-export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
+export function LogMealSheet({ open, onClose, onLogged, meal }: LogMealSheetProps) {
   const [tier, setTier] = useState<MealTier | null>(null)
   const [time, setTime] = useState<MealTime | null>(null)
   const [date, setDate] = useState(toCohortDate())
@@ -26,8 +29,26 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null)
   const [photoBusy, setPhotoBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Two-tap delete: first tap arms it, second tap actually deletes.
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
   const log = useLogMeal()
+  const update = useUpdateMeal()
+  const del = useDeleteMeal()
+
+  // Editing: load the meal's current values each time the sheet opens.
+  useEffect(() => {
+    if (!open || !meal) return
+    setTier(meal.tier)
+    setTime(meal.mealTime)
+    setDate(meal.mealDate)
+    setCaption(meal.caption ?? '')
+    setQuestTagSelected(meal.questTags.length > 0)
+    setPlantProteinGrams(meal.plantProteinGrams ? String(meal.plantProteinGrams) : '')
+    setPhotoUrl(meal.photoUrl)
+    setError(null)
+    setConfirmDelete(false)
+  }, [open, meal])
 
   const reset = () => {
     setTier(null); setTime(null); setDate(toCohortDate()); setCaption(''); setQuestTagSelected(false); setPlantProteinGrams(''); setPhotoUrl(null); setError(null)
@@ -49,25 +70,49 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   const submit = async () => {
     if (!tier || !time) return
     setError(null)
+    const fields = {
+      tier,
+      mealTime: time,
+      mealDate: date,
+      caption: caption.trim() || null,
+      photoDataUrl: photoUrl,
+      questTags: tag && questTagSelected ? [tag] : [],
+      plantProteinGrams: Math.max(0, Number(plantProteinGrams) || 0),
+    }
     try {
-      const result = await log.mutateAsync({
-        tier,
-        mealTime: time,
-        mealDate: date,
-        caption: caption.trim() || null,
-        hasPhoto: !!photoUrl,
-        photoDataUrl: photoUrl,
-        questTags: tag && questTagSelected ? [tag] : [],
-        plantProteinGrams: Math.max(0, Number(plantProteinGrams) || 0),
-      })
-      reset()
-      onClose()
-      onLogged(result)
+      if (meal) {
+        // Edit: save quietly, no celebration.
+        await update.mutateAsync({ id: meal.id, ...fields })
+        reset()
+        onClose()
+      } else {
+        const result = await log.mutateAsync({ ...fields, hasPhoto: !!photoUrl })
+        reset()
+        onClose()
+        onLogged?.(result)
+      }
     } catch (err) {
       const code = (err as Error).message
       if (code === 'SLOT_TAKEN') setError('You already logged a meal for that time today. Try another slot!')
       else if (code === 'MEAL_CAP') setError('That’s 3 meals today — Moo is full. See you tomorrow!')
       else setError('Something went sideways. Poke it again in a sec.')
+    }
+  }
+
+  const remove = async () => {
+    if (!meal) return
+    if (!confirmDelete) {
+      setConfirmDelete(true)
+      return
+    }
+    setError(null)
+    try {
+      await del.mutateAsync(meal.id)
+      reset()
+      setConfirmDelete(false)
+      onClose()
+    } catch {
+      setError('Couldn’t delete that meal. Try again in a sec.')
     }
   }
 
@@ -82,8 +127,10 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
     cooked_at_home: 'Cooked or eaten at home',
   }
 
+  const busy = log.isPending || update.isPending
+
   return (
-    <BottomSheet open={open} onClose={onClose} title="Add a meal">
+    <BottomSheet open={open} onClose={onClose} title={meal ? 'Edit meal' : 'Add a meal'}>
       <div className="space-y-5">
         <Field label="Meal type">
           <div className="flex flex-wrap gap-2">
@@ -171,10 +218,20 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
           <PixelButton variant="ghost" full onClick={onClose}>
             Cancel
           </PixelButton>
-          <PixelButton variant="primary" full disabled={!valid || log.isPending} onClick={submit}>
-            {log.isPending ? 'Logging…' : 'Log it'}
+          <PixelButton variant="primary" full disabled={!valid || busy} onClick={submit}>
+            {busy ? 'Saving…' : meal ? 'Save changes' : 'Log it'}
           </PixelButton>
         </div>
+
+        {meal && (
+          <button
+            onClick={remove}
+            disabled={del.isPending}
+            className="mx-auto block font-mono text-sm text-alert underline"
+          >
+            {del.isPending ? 'Deleting…' : confirmDelete ? 'Tap again to delete — points go with it' : 'Delete meal'}
+          </button>
+        )}
       </div>
     </BottomSheet>
   )

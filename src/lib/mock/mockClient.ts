@@ -3,6 +3,7 @@ import type {
   LogMealInput,
   LogMealResult,
   OnboardingInput,
+  UpdateMealInput,
 } from '../dataProvider'
 import type { Comment, DailyQuestProgress, LeaderboardEntry, Meal, Profile, Reaction, Team, TeamStanding } from '../types'
 import { TEAMS } from '@/content/seed'
@@ -267,5 +268,40 @@ export class MockProvider implements DataProvider {
     this.save()
 
     return { meal, streak, bonus, pointsEarned: points + bonus }
+  }
+
+  /** Edit one of my own meals. Points are recomputed from the new fields. */
+  async updateMeal(input: UpdateMealInput): Promise<Meal> {
+    await delay()
+    const idx = this.p.myMeals.findIndex((m) => m.id === input.id)
+    if (idx === -1) throw new Error('NOT_FOUND')
+
+    // Same slot rules as logging, ignoring the meal being edited.
+    const others = this.p.myMeals.filter((m) => m.id !== input.id && m.mealDate === input.mealDate)
+    if (others.length >= 3) throw new Error('MEAL_CAP')
+    if (others.some((m) => m.mealTime === input.mealTime)) throw new Error('SLOT_TAKEN')
+
+    const quest = activeQuest(DAILY_QUESTS)
+    const meal: Meal = {
+      ...this.p.myMeals[idx],
+      tier: input.tier,
+      mealTime: input.mealTime,
+      mealDate: input.mealDate,
+      caption: input.caption,
+      photoUrl: input.photoDataUrl,
+      questTags: input.questTags ?? [],
+      plantProteinGrams: input.plantProteinGrams ?? 0,
+      points: computeMealPoints(input.tier, !!input.photoDataUrl, quest),
+      co2SavedKg: co2SavedKg(input.tier),
+    }
+    this.p.myMeals[idx] = meal
+    this.save()
+    return meal
+  }
+
+  async deleteMeal(id: string): Promise<void> {
+    await delay()
+    this.p.myMeals = this.p.myMeals.filter((m) => m.id !== id)
+    this.save()
   }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ForkKnife } from '@phosphor-icons/react'
+import { ForkKnife, PencilSimple } from '@phosphor-icons/react'
 import type { Meal, Profile } from '@/lib/types'
 import { TIER_LABEL, TIME_LABEL } from '@/lib/types'
 
@@ -7,21 +7,33 @@ interface MealCardProps {
   meal: Meal
   author?: Profile
   onClick?: () => void
+  /** Present only on the viewer's own meals — shows the edit pencil. */
+  onEdit?: () => void
 }
 
 /**
  * A meal in the 2-col feed. Photos sit in the same hairline-stroked frame as
  * every other container; photoless meals fall back to a neutral placeholder.
  */
-export function MealCard({ meal, author, onClick }: MealCardProps) {
+export function MealCard({ meal, author, onClick, onEdit }: MealCardProps) {
   const [imgOk, setImgOk] = useState(true)
   const showImg = meal.photoUrl && imgOk
 
   return (
-    <button
-      onClick={onClick}
-      className="flex flex-col overflow-hidden rounded-card border border-ink bg-paper-2 text-left transition-transform active:scale-[0.98]"
-    >
+    <div className="relative">
+      {onEdit && (
+        <button
+          onClick={onEdit}
+          aria-label="Edit meal"
+          className="absolute left-1.5 top-1.5 z-10 grid h-7 w-7 place-items-center rounded-full border border-ink bg-paper-2/95 text-ink transition-transform active:scale-95"
+        >
+          <PencilSimple size={14} aria-hidden />
+        </button>
+      )}
+      <button
+        onClick={onClick}
+        className="flex w-full flex-col overflow-hidden rounded-card border border-ink bg-paper-2 text-left transition-transform active:scale-[0.98]"
+      >
       <div className="relative aspect-square w-full border-b border-ink bg-paper-3">
         {showImg ? (
           <img
@@ -47,6 +59,7 @@ export function MealCard({ meal, author, onClick }: MealCardProps) {
         </div>
         {meal.caption && <div className="mt-0.5 line-clamp-2 font-mono text-[11px] text-muted">{meal.caption}</div>}
       </div>
-    </button>
+      </button>
+    </div>
   )
 }

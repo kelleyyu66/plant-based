@@ -5,10 +5,11 @@ import { EmptyState } from '@/components/EmptyState'
 import { H1 } from '@/components/H1'
 import { NotificationBell } from '@/components/Notifications'
 import { useAppNotifications } from '@/hooks/useAppNotifications'
-import { useMeals, useProfiles } from '@/hooks/useData'
+import { useMeals, useMyProfile, useProfiles } from '@/hooks/useData'
 import { challengeDay, shortDate, toCohortDate } from '@/lib/dates'
 import { CHALLENGE_START_DATE } from '@/content/seed'
-import { MEAL_TIMES, TIME_LABEL, type MealTime } from '@/lib/types'
+import { MEAL_TIMES, TIME_LABEL, type Meal, type MealTime } from '@/lib/types'
+import { LogMealSheet } from './LogMealSheet'
 
 /**
  * Two-layer browse: day first, then meal slot.
@@ -23,6 +24,8 @@ export function Meals() {
   const notifications = useAppNotifications()
   const { data: meals, isLoading } = useMeals()
   const { data: profiles } = useProfiles()
+  const { data: me } = useMyProfile()
+  const [editing, setEditing] = useState<Meal | null>(null)
 
   const byId = useMemo(() => new Map((profiles ?? []).map((p) => [p.id, p])), [profiles])
 
@@ -136,7 +139,14 @@ export function Meals() {
           {visible.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 px-6 pt-4">
               {visible.map((m) => (
-                <MealCard key={m.id} meal={m} author={byId.get(m.userId)} onClick={() => nav(`/meals/${m.id}`)} />
+                <MealCard
+                  key={m.id}
+                  meal={m}
+                  author={byId.get(m.userId)}
+                  onClick={() => nav(`/meals/${m.id}`)}
+                  // Edit is only offered on the viewer's own meals.
+                  onEdit={me && m.userId === me.id ? () => setEditing(m) : undefined}
+                />
               ))}
             </div>
           ) : (
@@ -146,6 +156,8 @@ export function Meals() {
           )}
         </>
       )}
+
+      <LogMealSheet open={!!editing} meal={editing} onClose={() => setEditing(null)} />
     </div>
   )
 }

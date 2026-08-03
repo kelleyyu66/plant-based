@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { data, type LogMealInput, type OnboardingInput } from '@/lib/dataProvider'
+import { data, type LogMealInput, type OnboardingInput, type UpdateMealInput } from '@/lib/dataProvider'
 import { toCohortDate } from '@/lib/dates'
 
 // Query keys
@@ -70,6 +70,38 @@ export function useLogMeal() {
       qc.invalidateQueries({ queryKey: ['userPoints'] })
       qc.invalidateQueries({ queryKey: ['userMeals'] })
     },
+  })
+}
+
+/** Everything a meal touches: feed, quests, points, impact, streak. */
+function useInvalidateMealData() {
+  const qc = useQueryClient()
+  return () => {
+    qc.invalidateQueries({ queryKey: qk.meals })
+    qc.invalidateQueries({ queryKey: qk.myMealsToday })
+    qc.invalidateQueries({ queryKey: ['dailyQuest'] })
+    qc.invalidateQueries({ queryKey: qk.leaderboard })
+    qc.invalidateQueries({ queryKey: qk.teamStandings })
+    qc.invalidateQueries({ queryKey: qk.impact })
+    qc.invalidateQueries({ queryKey: qk.me })
+    qc.invalidateQueries({ queryKey: ['userPoints'] })
+    qc.invalidateQueries({ queryKey: ['userMeals'] })
+  }
+}
+
+export function useUpdateMeal() {
+  const invalidate = useInvalidateMealData()
+  return useMutation({
+    mutationFn: (input: UpdateMealInput) => data.updateMeal(input),
+    onSuccess: invalidate,
+  })
+}
+
+export function useDeleteMeal() {
+  const invalidate = useInvalidateMealData()
+  return useMutation({
+    mutationFn: (id: string) => data.deleteMeal(id),
+    onSuccess: invalidate,
   })
 }
 

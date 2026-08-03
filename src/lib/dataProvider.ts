@@ -34,6 +34,18 @@ export interface LogMealResult {
   pointsEarned: number // meal points + bonus
 }
 
+/** Editable fields of an already-logged meal (own meals only). */
+export interface UpdateMealInput {
+  id: string
+  tier: MealTier
+  mealTime: MealTime
+  mealDate: string
+  caption: string | null
+  photoDataUrl: string | null
+  questTags?: QuestTag[]
+  plantProteinGrams?: number
+}
+
 export interface OnboardingInput {
   displayName: string
   email?: string | null
@@ -76,6 +88,8 @@ export interface DataProvider {
 
   // writes
   logMeal(input: LogMealInput): Promise<LogMealResult>
+  updateMeal(input: UpdateMealInput): Promise<Meal>
+  deleteMeal(id: string): Promise<void>
 }
 
 const MODE = import.meta.env.VITE_DATA_MODE ?? 'mock'

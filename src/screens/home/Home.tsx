@@ -124,7 +124,7 @@ export function Home() {
               See all
             </button>
           </div>
-          <div className="mt-2.5 rounded-card border border-ink bg-paper-2 px-3">
+          <div className="mt-2.5 overflow-hidden rounded-card border border-ink bg-paper-2 px-3">
             {top.map((e, i) => (
               <LeaderRow
                 key={e.profile.id}

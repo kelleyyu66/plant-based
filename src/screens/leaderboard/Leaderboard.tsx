@@ -48,7 +48,7 @@ function Section({
   return (
     <section className="mx-6 my-5">
       <h2 className="mb-2 font-mono text-[13px] text-ink">{title}</h2>
-      <div className="rounded-card border border-ink bg-paper-2 px-3">
+      <div className="overflow-hidden rounded-card border border-ink bg-paper-2 px-3">
         {entries.length === 0 ? (
           <p className="py-3 font-mono text-[13px] text-muted">No one here yet.</p>
         ) : (
