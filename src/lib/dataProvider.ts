@@ -97,14 +97,22 @@ export interface DataProvider {
 const MODE = import.meta.env.VITE_DATA_MODE ?? 'mock'
 
 let provider: DataProvider
+
 export function getDataProvider(): DataProvider {
   if (!provider) {
+    console.log("DATA MODE:", MODE)
+
     if (MODE === 'live') {
       provider = new SupabaseProvider()
+      console.log("USING SUPABASE PROVIDER")
     } else {
       provider = new MockProvider()
+      console.log("USING MOCK PROVIDER")
     }
   }
+
+  console.log("PROVIDER:", provider.constructor.name)
+
   return provider
 }
 
