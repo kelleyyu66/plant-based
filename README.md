@@ -26,7 +26,7 @@ npm run build      # production build + PWA service worker
 
 The app runs entirely on **mock data** (`VITE_DATA_MODE=mock`, the default): ~45 seeded cohort
 members, meals, comments, reactions, teams, and standings — persisted to `localStorage`. Every screen
-works with no backend. Flip to `live` once Supabase is wired (Phase 8).
+works with no backend. Set `VITE_DATA_MODE=live` to use the configured Supabase auth/profile flow.
 
 ## Architecture
 
@@ -55,8 +55,7 @@ Streak = consecutive days with ≥1 meal, in America/Los_Angeles.
 3. Seed reference data: `SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/seed.mjs`.
 4. Copy `.env.example` → `.env.local`, set `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`, and
    `VITE_DATA_MODE=live`.
-5. Implement `SupabaseProvider` (a `DataProvider` backed by `src/lib/supabase.ts` + the `fn_log_meal`
-   RPC) and select it in `getDataProvider()`.
+5. Deploy with `VITE_DATA_MODE=live`; the live provider sends the email OTP and upserts the onboarding profile using the authenticated user's ID.
 
 ## ⚠️ Asset licensing
 

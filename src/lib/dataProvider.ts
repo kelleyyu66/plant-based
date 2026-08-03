@@ -15,6 +15,7 @@ import type {
 } from './types'
 import type { StreakResult } from './streak'
 import { MockProvider } from './mock/mockClient'
+import { SupabaseProvider } from './supabaseProvider'
 
 export interface LogMealInput {
   tier: MealTier
@@ -61,6 +62,7 @@ export interface OnboardingInput {
 export interface DataProvider {
   // session / auth
   getMyProfile(): Promise<Profile | null>
+  signUpWithEmail(email: string): Promise<void>
   signInWithEmail(email: string): Promise<void>
   signOut(): Promise<void>
   completeOnboarding(input: OnboardingInput): Promise<Profile>
@@ -98,9 +100,7 @@ let provider: DataProvider
 export function getDataProvider(): DataProvider {
   if (!provider) {
     if (MODE === 'live') {
-      // Phase 8: swap in SupabaseProvider once the hosted project exists.
-      console.warn('[data] live mode not wired yet; using mock')
-      provider = new MockProvider()
+      provider = new SupabaseProvider()
     } else {
       provider = new MockProvider()
     }

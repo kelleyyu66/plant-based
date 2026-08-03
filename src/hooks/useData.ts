@@ -21,6 +21,10 @@ export const qk = {
 }
 
 export const useMyProfile = () => useQuery({ queryKey: qk.me, queryFn: () => data.getMyProfile() })
+export const useSignInWithEmail = () =>
+  useMutation({ mutationFn: (email: string) => data.signInWithEmail(email) })
+export const useSignUpWithEmail = () =>
+  useMutation({ mutationFn: (email: string) => data.signUpWithEmail(email) })
 export const useProfiles = () => useQuery({ queryKey: qk.profiles, queryFn: () => data.listProfiles() })
 export const useProfile = (id: string) =>
   useQuery({ queryKey: qk.profile(id), queryFn: () => data.getProfile(id), enabled: !!id })

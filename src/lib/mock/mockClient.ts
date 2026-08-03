@@ -76,6 +76,9 @@ export class MockProvider implements DataProvider {
     this.p.pendingEmail = email
     this.save()
   }
+  async signUpWithEmail(email: string) {
+    return this.signInWithEmail(email)
+  }
   async signOut() {
     this.p = blank()
     this.save()

@@ -8,7 +8,7 @@ import { MeetMooScene } from '@/components/MeetMooScene'
 import { Sprite } from '@/components/Sprite'
 import { AVATAR_COUNT, animalName } from '@/content/animals'
 import { startingImpact, usAverageImpact } from '@/lib/impact'
-import { useCompleteOnboarding } from '@/hooks/useData'
+import { useCompleteOnboarding, useSignUpWithEmail } from '@/hooks/useData'
 
 export function Onboarding() {
   const s = useOnboarding()
@@ -30,13 +30,22 @@ export function Onboarding() {
 // 2 — Basic info: name + magic-link
 function BasicInfo() {
   const { name, email, setField, next } = useOnboarding()
+  const auth = useSignUpWithEmail()
   const validEmail = /.+@.+\..+/.test(email)
   const valid = name.trim().length > 0 && validEmail
+  const join = async () => {
+    try {
+      await auth.mutateAsync(email.trim())
+      next()
+    } catch {
+      // The mutation logs the Supabase error; keep the user on this step so they can retry.
+    }
+  }
   return (
     <OnboardingShell
       footer={
-        <PixelButton full disabled={!valid} onClick={next}>
-          Join the challenge
+        <PixelButton full disabled={!valid || auth.isPending} onClick={join}>
+          {auth.isPending ? 'Sending link…' : 'Join the challenge'}
         </PixelButton>
       }
     >
@@ -71,6 +80,11 @@ function BasicInfo() {
         <p className="mt-2 self-start font-mono text-sm text-muted">
           We’ll send a magic link — no password to forget.
         </p>
+        {auth.isError && (
+          <p className="mt-2 self-start font-mono text-sm text-red-700" role="alert">
+            We couldn’t send the sign-in link. Please check your email and try again.
+          </p>
+        )}
       </div>
     </OnboardingShell>
   )
