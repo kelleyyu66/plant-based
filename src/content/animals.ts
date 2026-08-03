@@ -12,7 +12,7 @@
  */
 export const ANIMALS = [
   'Bear', 'Bunny', 'Dog', 'Mouse', 'Monkey',
-  'Pig', 'Koala', 'Fox', 'Sloth', 'Panda',
+  'Pig', 'Elephant', 'Fox', 'Sloth', 'Panda',
   'Deer', 'Sheep', 'Penguin', 'Red Panda', 'Hippo',
   'Squirrel', 'Lion', 'Capybara', 'Giraffe', 'Duck',
 ] as const
