@@ -1,9 +1,19 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { PencilSimple } from '@phosphor-icons/react'
 import { Avatar } from '@/components/Avatar'
 import { PixelButton } from '@/components/PixelButton'
-import { useAddComment, useComments, useMeals, useProfiles, useReactions, useToggleReaction } from '@/hooks/useData'
+import {
+  useAddComment,
+  useComments,
+  useMeals,
+  useMyProfile,
+  useProfiles,
+  useReactions,
+  useToggleReaction,
+} from '@/hooks/useData'
 import { TIER_LABEL, TIME_LABEL } from '@/lib/types'
+import { LogMealSheet } from './LogMealSheet'
 
 const REACTION_CHOICES = ['🌱', '🔥', '😋', '👏', '🐄', '💚']
 
@@ -17,9 +27,11 @@ export function MealDetail() {
 
   const { data: comments } = useComments(id)
   const { data: reactions } = useReactions(id)
+  const { data: me } = useMyProfile()
   const addComment = useAddComment(id)
   const toggleReaction = useToggleReaction(id)
   const [draft, setDraft] = useState('')
+  const [editing, setEditing] = useState(false)
 
   const counts = useMemo(() => {
     const map = new Map<string, { count: number; mine: boolean }>()
@@ -135,6 +147,28 @@ export function MealDetail() {
           </PixelButton>
         </div>
       </div>
+
+      {/* Edit — own meals only. Floats 48px above the menu bar (~60px tall),
+          centred over the You tab (last of four, so 12.5% in from the right). */}
+      {me && meal.userId === me.id && (
+        <>
+          <div className="pointer-events-none fixed inset-x-0 bottom-[108px] z-40 mx-auto w-full max-w-phone">
+            <button
+              onClick={() => setEditing(true)}
+              aria-label="Edit meal"
+              className="pointer-events-auto absolute bottom-0 right-[12.5%] grid h-12 w-12 translate-x-1/2 place-items-center rounded-full border border-ink bg-paper-2 text-ink transition-transform active:scale-95"
+            >
+              <PencilSimple size={20} aria-hidden />
+            </button>
+          </div>
+          <LogMealSheet
+            open={editing}
+            meal={meal}
+            onClose={() => setEditing(false)}
+            onDeleted={() => nav('/meals')}
+          />
+        </>
+      )}
     </div>
   )
 }

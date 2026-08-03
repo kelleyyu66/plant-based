@@ -17,9 +17,11 @@ interface LogMealSheetProps {
   onLogged?: (result: LogMealResult) => void
   /** When set, the sheet edits this existing meal instead of logging a new one. */
   meal?: Meal | null
+  /** Fires after the edited meal is deleted (the meal's page is gone too). */
+  onDeleted?: () => void
 }
 
-export function LogMealSheet({ open, onClose, onLogged, meal }: LogMealSheetProps) {
+export function LogMealSheet({ open, onClose, onLogged, meal, onDeleted }: LogMealSheetProps) {
   const [tier, setTier] = useState<MealTier | null>(null)
   const [time, setTime] = useState<MealTime | null>(null)
   const [date, setDate] = useState(toCohortDate())
@@ -111,6 +113,7 @@ export function LogMealSheet({ open, onClose, onLogged, meal }: LogMealSheetProp
       reset()
       setConfirmDelete(false)
       onClose()
+      onDeleted?.()
     } catch {
       setError('Couldn’t delete that meal. Try again in a sec.')
     }
