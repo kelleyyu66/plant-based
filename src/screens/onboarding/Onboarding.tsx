@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { OnboardingShell } from './OnboardingShell'
 import { deriveStartingDiet, useOnboarding } from './onboardingStore'
 import { PixelButton } from '@/components/PixelButton'
@@ -9,7 +10,8 @@ import { HomeCow } from '@/components/HomeCow'
 import { Sprite } from '@/components/Sprite'
 import { AVATAR_COUNT, animalName } from '@/content/animals'
 import { MEAT_PROTEIN_LABELS, proteinImpactChart, startingImpact } from '@/lib/impact'
-import { useCompleteOnboarding, useSignUpWithEmail } from '@/hooks/useData'
+import { qk, useCompleteOnboarding, useSignUpWithEmail } from '@/hooks/useData'
+import { data } from '@/lib/dataProvider'
 
 export function Onboarding() {
   const s = useOnboarding()
@@ -28,25 +30,29 @@ export function Onboarding() {
   }
 }
 
-// 2 — Basic info: name + magic-link
+// 2 — Basic info: name + passwordless email login
 function BasicInfo() {
   const { name, email, setField, next } = useOnboarding()
   const auth = useSignUpWithEmail()
-  const validEmail = /.+@.+\..+/.test(email)
-  const valid = name.trim().length > 0 && validEmail
+  const qc = useQueryClient()
+  // Email alone is the login, so a returning user only needs their email.
+  const valid = /.+@.+\..+/.test(email)
   const join = async () => {
     try {
       await auth.mutateAsync(email.trim())
-      next()
+      // Returning user? Their profile already exists — the app routes them home
+      // once `me` resolves, so we skip the rest of onboarding.
+      const profile = await qc.fetchQuery({ queryKey: qk.me, queryFn: () => data.getMyProfile() })
+      if (!profile) next()
     } catch {
-      // The mutation logs the Supabase error; keep the user on this step so they can retry.
+      // The mutation logs the error; keep the user on this step so they can retry.
     }
   }
   return (
     <OnboardingShell
       footer={
         <PixelButton full disabled={!valid || auth.isPending} onClick={join}>
-          {auth.isPending ? 'Sending link…' : 'Join the challenge'}
+          {auth.isPending ? 'Signing you in…' : 'Join the challenge'}
         </PixelButton>
       }
     >
@@ -84,11 +90,11 @@ function BasicInfo() {
           />
         </label>
         <p className="mt-2 self-start font-mono text-sm text-muted">
-          We’ll send a magic link — no password to forget.
+          No password — your email is your login. Come back with the same email anytime.
         </p>
         {auth.isError && (
           <p className="mt-2 self-start font-mono text-sm text-red-700" role="alert">
-            We couldn’t send the sign-in link. Please check your email and try again.
+            Couldn’t sign you in. Double-check your email and try again.
           </p>
         )}
       </div>

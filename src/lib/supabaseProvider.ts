@@ -42,23 +42,49 @@ export class SupabaseProvider extends MockProvider implements DataProvider {
     return data ? toProfile(data) : null
   }
 
+  /**
+   * "Your email is your login" — no password, no email verification.
+   *
+   * We derive a deterministic password from the email, so the same email always
+   * resolves to the same account, even after a hard reset (server-side profile).
+   * Existing email → sign in; new email → sign up (which, with email confirmation
+   * OFF in Supabase Auth settings, returns a session immediately).
+   *
+   * Trade-off, accepted for this low-stakes cohort app: the password is
+   * derivable from the email, so knowing an email is enough to sign in.
+   * REQUIRES "Confirm email" to be disabled in the Supabase dashboard
+   * (Auth → Providers → Email), otherwise signup won't return a session.
+   */
+  private passwordFor(email: string): string {
+    return `pbc-2026::${email.trim().toLowerCase()}`
+  }
+
   async signInWithEmail(email: string): Promise<void> {
     const client = requireClient()
-    const { error } = await client.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: window.location.origin,
-      },
-    })
-    if (error) {
-      console.error('[supabase] auth signup/login failed', { email, error })
-      throw error
+    const normalized = email.trim().toLowerCase()
+    const password = this.passwordFor(normalized)
+
+    const { error } = await client.auth.signInWithPassword({ email: normalized, password })
+    if (!error) return
+
+    // No account for this email yet → create one and get a session back.
+    const { data: signUp, error: signUpError } = await client.auth.signUp({ email: normalized, password })
+    if (signUpError) {
+      console.error('[supabase] passwordless signup failed', { email: normalized, error: signUpError })
+      throw signUpError
+    }
+    if (!signUp.session) {
+      const { error: retry } = await client.auth.signInWithPassword({ email: normalized, password })
+      if (retry) {
+        console.error('[supabase] login after signup failed — is "Confirm email" disabled?', {
+          email: normalized,
+          error: retry,
+        })
+        throw retry
+      }
     }
   }
 
-  // Supabase's email OTP flow supports both first-time signup and returning-user login.
-  // The profile write is gated separately in completeOnboarding.
   async signUpWithEmail(email: string): Promise<void> {
     return this.signInWithEmail(email)
   }
@@ -78,7 +104,7 @@ export class SupabaseProvider extends MockProvider implements DataProvider {
     const user = authData.user
     if (authError || !user) {
       console.error('[supabase] cannot create profile without an authenticated user', { authError })
-      throw authError ?? new Error('You must verify your email before starting the challenge.')
+      throw authError ?? new Error('Couldn’t sign you in. Please re-enter your email and try again.')
     }
 
     const profile = {
