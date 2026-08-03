@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
-import { MooCow } from '@/components/MooCow'
+import { H1 } from '@/components/H1'
 import { ProgressBar } from '@/components/ProgressBar'
-import { StatRow } from '@/components/StatRow'
 import { LeaderRow } from '@/components/LeaderRow'
-import { DailyQuestCard } from '@/components/DailyQuestCard'
+import { QuestList } from '@/components/QuestList'
+import { CarbonEquivalent } from '@/components/CarbonEquivalent'
+import { NotificationBell } from '@/components/Notifications'
+import { useAppNotifications } from '@/hooks/useAppNotifications'
 import {
   useChallengeImpact,
   useDailyQuestProgress,
@@ -12,8 +14,12 @@ import {
   useMyProfile,
   useUserPoints,
 } from '@/hooks/useData'
+import { Pasture } from '@/components/Pasture'
 import { impactEquivalents } from '@/lib/impact'
-import { cowNameOr } from '@/content/cowNames'
+import { INDIVIDUAL_POINTS_GOAL } from '@/content/seed'
+import { cowMessage, greetingTrigger } from '@/content/cowMessages'
+import { unlockedCount } from '@/lib/pasture'
+import { useUserMeals } from '@/hooks/useData'
 
 export function Home() {
   const nav = useNavigate()
@@ -23,83 +29,108 @@ export function Home() {
   const { data: impactKg = 0 } = useChallengeImpact()
   const { data: leaderboard } = useLeaderboard()
   const { data: dailyQuest } = useDailyQuestProgress()
+  const notifications = useAppNotifications()
+  const { data: myMeals } = useUserMeals('me')
 
   const impact = impactEquivalents(impactKg)
   const mealsCount = mealsToday?.length ?? 0
-  const cowName = cowNameOr(profile?.cowName)
-
   const top = leaderboard?.slice(0, 5) ?? []
+  const unlocked = unlockedCount(myMeals ?? [])
+
+  // The cow greets by time of day, and nags after 10pm if dinner is missing.
+  const now = new Date()
+  const dinnerLogged = (mealsToday ?? []).some((m) => m.mealTime === 'dinner')
+  const greeting = cowMessage(
+    mealsCount >= 3 ? 'all_done' : greetingTrigger(now.getHours(), dinnerLogged),
+    { name: profile?.displayName },
+    now.getDate(),
+  )
 
   return (
-    <div className="min-h-full bg-forest-900 pb-28 text-paper">
-      {/* Header */}
-      <header className="flex items-center justify-between px-5 pb-2 pt-5">
-        <div className="font-pixel text-lg text-paper">Hi, {profile?.displayName ?? 'friend'}</div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 rounded-full border-2 border-lime-400/60 bg-black/20 px-3 py-1.5">
-            <span aria-hidden>⭐</span>
-            <span className="font-pixel text-sm text-lime-400">{myPoints}</span>
-          </div>
-          <div className="flex items-center gap-1.5 rounded-full border-2 border-sun-400/60 bg-black/20 px-3 py-1.5">
-            <span aria-hidden>🔥</span>
-            <span className="font-pixel text-sm text-sun-400">{profile?.streakCurrent ?? 0}</span>
-          </div>
-        </div>
+    <div className="min-h-full bg-paper pb-52">
+      {/* Greeting + notifications */}
+      <header className="flex items-start justify-between px-6 pt-7">
+        <H1>hi {profile?.displayName ?? 'friend'}</H1>
+        <NotificationBell items={notifications.items} dismiss={notifications.dismiss} clearAll={notifications.clearAll} />
       </header>
 
-      {/* Progress */}
-      <section className="px-5 py-3">
-        <div className="mb-1.5 flex justify-between font-body text-sm">
-          <span className="font-bold">Plant meals today</span>
-          <span className="text-paper/70">{mealsCount}/3 meals</span>
-        </div>
-        <ProgressBar value={mealsCount} max={3} segments={3} />
+      {/* Hero illustration slot */}
+      {/* Hero = the pasture. Read-only here; arranging happens on the You page. */}
+      <Pasture unlocked={unlocked} mode="hero" mood={mealsCount > 0 ? 'idle' : 'sleep'} says={greeting} />
+      <div className="flex justify-end px-6 pt-1">
+        <button className="font-mono text-[12px] text-muted underline" onClick={() => nav('/profile#pasture')}>
+          edit pasture
+        </button>
+      </div>
+
+      {/* Meters — the progress fill is the app's only color. */}
+      <section className="space-y-4 px-6 pt-7">
+        <Meter label="Plant based meals today" value={`${mealsCount} of 3`}>
+          <ProgressBar value={mealsCount} max={3} />
+        </Meter>
+        <Meter label="Your points" value={`${myPoints}/${INDIVIDUAL_POINTS_GOAL}`}>
+          <ProgressBar value={myPoints} max={INDIVIDUAL_POINTS_GOAL} />
+        </Meter>
       </section>
 
-      {/* Cow stage */}
-      <section className="mx-5 my-3 flex flex-col items-center rounded-pixel border-2 border-black/30 bg-gradient-to-b from-forest-800 to-forest-700 py-6">
-        <MooCow mood={mealsCount > 0 ? 'idle' : 'sleep'} scale={11} />
-        <p className="mt-3 px-6 text-center font-body text-sm text-paper/80">
-          {mealsCount > 0
-            ? `${cowName} is thriving today. Keep it going!`
-            : `${cowName} is napping. Log a meal to wake them up!`}
-        </p>
-      </section>
+      {/* Today's quest — completion is derived from food logs, never tapped. */}
+      {dailyQuest && dailyQuest.tasks.length > 0 && (
+        <section className="px-6 pt-7">
+          <h2 className="mb-2.5 font-mono text-[15px] text-ink">Today’s quest</h2>
+          <QuestList progress={dailyQuest} />
+        </section>
+      )}
 
-      {/* Daily quest */}
-      {dailyQuest && <DailyQuestCard progress={dailyQuest} />}
+      {/* Carbon savings */}
+      <section className="px-6 pt-9">
+        <H1 as="h2" className="!text-[30px] text-center leading-[1.25]">
+          Together we’ve saved {impact.kg.toLocaleString()} kilograms of carbon dioxide.
+        </H1>
 
-      {/* Challenge-wide impact */}
-      <section className="mx-5 my-3 rounded-pixel border-2 border-black/30 bg-forest-800 p-4">
-        <h2 className="font-pixel text-base text-paper">🌍 Challenge-wide impact</h2>
-        <div className="my-2 font-pixel text-[26px] text-lime-400">{impact.kg} kg</div>
-        <div className="mb-3 font-body text-xs text-paper/70">CO₂ equivalent saved, approximately equal to…</div>
-        <div className="space-y-2">
-          <StatRow icon="🚗" label="fewer miles driven" value={impact.miles.toLocaleString()} />
-          <StatRow icon="🌳" label="trees planted" value={impact.trees.toLocaleString()} />
-          <StatRow icon="💧" label="showers saved (in water usage)" value={impact.showers.toLocaleString()} />
+        <p className="mt-5 text-center font-mono text-[14px] text-ink">That means…</p>
+
+        <div className="mt-3 grid grid-cols-3 gap-[11px]">
+          <CarbonEquivalent kind="car" value={impact.miles.toLocaleString()} label="fewer miles driven" />
+          <CarbonEquivalent kind="tree" value={impact.trees.toLocaleString()} label="trees’ worth of carbon" />
+          <CarbonEquivalent kind="shower" value={impact.showers.toLocaleString()} label="showers of water saved" />
         </div>
       </section>
 
       {/* Leaderboard preview */}
-      <section className="mx-5 my-3 rounded-pixel border-2 border-black/30 bg-paper p-3 text-ink">
-        <div className="mb-1 flex items-center justify-between">
-          <h2 className="font-pixel text-base text-ink">🏆 Leaderboard</h2>
-          <button className="font-body text-xs text-ink-soft underline" onClick={() => nav('/leaderboard')}>
-            See all
-          </button>
-        </div>
-        {top.map((e, i) => (
-          <LeaderRow
-            key={e.profile.id}
-            rank={i + 1}
-            profile={e.profile}
-            points={e.points}
-            highlight={e.profile.id === 'me'}
-            onClick={() => nav(`/profile/${e.profile.id}`)}
-          />
-        ))}
-      </section>
+      {top.length > 0 && (
+        <section className="px-6 pt-9">
+          <div className="flex items-center justify-between">
+            <h2 className="font-mono text-[15px] text-ink">Leaderboard</h2>
+            <button className="font-mono text-[12px] text-muted underline" onClick={() => nav('/leaderboard')}>
+              See all
+            </button>
+          </div>
+          <div className="mt-2.5 rounded-card border border-ink bg-paper-2 px-3">
+            {top.map((e, i) => (
+              <LeaderRow
+                key={e.profile.id}
+                rank={i + 1}
+                profile={e.profile}
+                points={e.points}
+                highlight={e.profile.id === 'me'}
+                onClick={() => nav(`/profile/${e.profile.id}`)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  )
+}
+
+function Meter({ label, value, children }: { label: string; value: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="mb-1.5 flex items-baseline justify-between font-mono text-[15px] text-ink">
+        <span>{label}</span>
+        <span>{value}</span>
+      </div>
+      {children}
     </div>
   )
 }

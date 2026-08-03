@@ -29,3 +29,22 @@ export function dayOfYear(d: Date = new Date()): number {
   const now = Date.UTC(y, m - 1, day)
   return Math.floor((now - start) / 86_400_000)
 }
+
+/**
+ * Challenge-day label for a meal date (1-based). Day 1 is `start`.
+ * Dates before the start clamp to day 1 so nothing is ever unlabelled.
+ */
+export function challengeDay(mealDate: string, start: string): number {
+  return Math.max(1, dayDiff(start, mealDate) + 1)
+}
+
+/** Short human date for a YYYY-MM-DD string, e.g. "Mon 28 Jul". */
+export function shortDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number)
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(y, m - 1, d)))
+}

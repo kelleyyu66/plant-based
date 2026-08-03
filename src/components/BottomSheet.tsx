@@ -22,7 +22,7 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
             onClick={onClose}
           />
           <motion.div
-            className="absolute bottom-0 w-full max-w-phone rounded-t-[16px] border-t-2 border-ink bg-paper-2 p-5 pb-8"
+            className="absolute bottom-0 w-full max-w-phone rounded-t-[16px] border-t border-ink bg-paper-2 p-5 pb-8"
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
@@ -31,14 +31,14 @@ export function BottomSheet({ open, onClose, title, children }: BottomSheetProps
             aria-modal="true"
             aria-label={title}
           >
-            <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-ink/20" />
+            <div className="mx-auto mb-4 h-1 w-10 rounded-pill bg-ink/25" />
             {title && (
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-pixel text-lg text-ink">{title}</h2>
+                <h2 className="font-hand text-[28px] font-bold text-ink">{title}</h2>
                 <button
                   onClick={onClose}
                   aria-label="Close"
-                  className="grid h-8 w-8 place-items-center rounded-full border-2 border-ink text-ink"
+                  className="grid h-8 w-8 place-items-center rounded-full border border-ink font-mono text-ink"
                 >
                   ✕
                 </button>

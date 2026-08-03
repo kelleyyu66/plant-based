@@ -1,3 +1,4 @@
+import { CaretRight } from '@phosphor-icons/react'
 import { Avatar } from './Avatar'
 import type { Profile } from '@/lib/types'
 
@@ -13,17 +14,17 @@ export function LeaderRow({ rank, profile, points, onClick, highlight }: LeaderR
   return (
     <button
       onClick={onClick}
-      className={`flex w-full items-center gap-3 border-b border-black/10 px-1 py-2.5 text-left transition-transform active:scale-[0.99] ${
-        highlight ? 'rounded-pixel bg-lime-400/20' : ''
+      className={`flex w-full items-center gap-3 border-b border-ink/12 py-2.5 text-left transition-transform last:border-0 active:scale-[0.99] ${
+        highlight ? '-mx-1.5 rounded-card bg-grass-pale px-1.5' : ''
       }`}
     >
-      {rank != null && <span className="w-6 text-center font-pixel text-sm text-ink-soft">{rank}</span>}
+      {rank != null && <span className="w-5 shrink-0 text-center font-mono text-[13px] text-muted">{rank}</span>}
       <Avatar index={profile.avatarIndex} size="sm" />
-      <div className="flex-1">
-        <div className="font-body font-extrabold text-ink">{profile.displayName}</div>
-        <div className="font-body text-xs text-ink-soft">{points} points</div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-mono text-[15px] font-medium text-ink">{profile.displayName}</div>
+        <div className="font-mono text-[12px] text-muted">{points} points</div>
       </div>
-      {onClick && <span className="text-ink-soft">›</span>}
+      {onClick && <CaretRight size={15} className="shrink-0 text-muted" aria-hidden />}
     </button>
   )
 }

@@ -78,3 +78,12 @@ export function topUnlockedAccessory(teamPoints: number): Accessory {
 export const CHALLENGE_CO2_GOAL_KG = 500
 export const INDIVIDUAL_POINTS_GOAL = 140
 export const TEAM_POINTS_GOAL = 1200
+
+/** Length of the cohort challenge, in days. */
+export const CHALLENGE_DAYS = 7
+/**
+ * The cohort's real start date (YYYY-MM-DD), used to label meals "Day 1"…"Day 7".
+ * Left null until the date is fixed; while null it's derived from the earliest
+ * logged meal, so the mock fixtures and a live cohort both label correctly.
+ */
+export const CHALLENGE_START_DATE: string | null = null

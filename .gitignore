@@ -14,5 +14,15 @@ dist-ssr
 Assets/
 public/avatars/
 
+# Local Claude Code settings (per-machine, not project config)
+.claude/settings.local.json
+
+# Third-party source assets kept locally, not needed to build:
+#  - IBM Plex Mono ships via @fontsource, not this folder
+#  - the Craftpix top-down pack is no longer referenced by the app
+# (Schoolbell IS tracked — it's the source of public/fonts/Schoolbell-Regular.ttf)
+IBM_Plex_Mono/
+main-characters-home-free-top-down-pixel-art-asset/
+
 # Build info
 tsconfig.tsbuildinfo

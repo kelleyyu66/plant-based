@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Camera } from '@phosphor-icons/react'
 import { BottomSheet } from '@/components/BottomSheet'
 import { Chip } from '@/components/Chip'
 import { PixelButton } from '@/components/PixelButton'
@@ -84,7 +85,7 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   return (
     <BottomSheet open={open} onClose={onClose} title="Add a meal">
       <div className="space-y-5">
-        <Field label="Meal type" required>
+        <Field label="Meal type">
           <div className="flex flex-wrap gap-2">
             {MEAL_TIERS.map((t) => (
               <Chip key={t} label={TIER_LABEL[t]} tier={t} selected={tier === t} onClick={() => setTier(t)} />
@@ -92,7 +93,7 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
           </div>
         </Field>
 
-        <Field label="Time" required>
+        <Field label="Time">
           <div className="flex gap-2">
             {MEAL_TIMES.map((t) => (
               <Chip key={t} label={TIME_LABEL[t]} selected={time === t} onClick={() => setTime(t)} />
@@ -100,7 +101,7 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
           </div>
         </Field>
 
-        <Field label="Date" required>
+        <Field label="Date">
           <input
             type="date"
             value={date}
@@ -110,18 +111,18 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
               setQuestTagSelected(false)
               setPlantProteinGrams('')
             }}
-            className="w-full rounded-pixel border-2 border-ink bg-paper-2 px-3 py-2.5 font-body text-ink outline-none"
+            className="w-full rounded-card border border-ink bg-paper-2 px-3 py-2.5 font-mono text-ink outline-none"
           />
         </Field>
 
         {tag && (
-          <Field label={`Today’s quest: ${challenge?.title}`}>
+          <Field label={`Today’s quest: ${challenge?.title}`} optional>
             <Chip label={questTagLabel[tag]} selected={questTagSelected} onClick={() => setQuestTagSelected((selected) => !selected)} />
           </Field>
         )}
 
         {challenge?.kind === 'plant_protein_50g' && (
-          <Field label="Plant-based protein (grams)">
+          <Field label="Plant-based protein (grams)" optional>
             <input
               type="number"
               min="0"
@@ -129,17 +130,17 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
               value={plantProteinGrams}
               onChange={(e) => setPlantProteinGrams(e.target.value)}
               placeholder="e.g. 18"
-              className="w-full rounded-pixel border-2 border-ink bg-paper-2 px-3 py-2.5 font-body text-ink outline-none placeholder:text-muted"
+              className="w-full rounded-card border border-ink bg-paper-2 px-3 py-2.5 font-mono text-ink outline-none placeholder:text-muted"
             />
           </Field>
         )}
 
-        <Field label="Photo (optional, +1 point 📸)">
+        <Field label="Photo (+1 point)" optional>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={pickPhoto} />
           {photoUrl ? (
             <div className="flex items-center gap-3">
-              <img src={photoUrl} alt="meal" className="h-16 w-16 rounded-pixel border-2 border-ink object-cover" />
-              <button className="font-body text-sm text-berry-400 underline" onClick={() => setPhotoUrl(null)}>
+              <img src={photoUrl} alt="meal" className="h-16 w-16 rounded-card border border-ink object-cover" />
+              <button className="font-mono text-sm text-muted underline" onClick={() => setPhotoUrl(null)}>
                 Remove
               </button>
             </div>
@@ -147,24 +148,24 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
             <button
               onClick={() => fileRef.current?.click()}
               disabled={photoBusy}
-              className="w-full rounded-pixel border-2 border-dashed border-ink/50 bg-paper-2 px-3 py-3 font-body text-ink-soft"
+              className="w-full rounded-card border border-dashed border-ink/40 bg-paper-2 px-3 py-3 font-mono text-muted"
             >
-              {photoBusy ? 'Compressing…' : '📷 Choose an image…'}
+              <span className="flex items-center justify-center gap-2"><Camera size={18} aria-hidden />{photoBusy ? 'Compressing…' : 'Choose an image…'}</span>
             </button>
           )}
         </Field>
 
-        <Field label="Caption (optional)">
+        <Field label="Caption" optional>
           <textarea
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             rows={2}
             placeholder="What did you eat? Brag a little."
-            className="w-full resize-none rounded-pixel border-2 border-ink bg-paper-2 px-3 py-2.5 font-body text-ink outline-none placeholder:text-muted"
+            className="w-full resize-none rounded-card border border-ink bg-paper-2 px-3 py-2.5 font-mono text-ink outline-none placeholder:text-muted"
           />
         </Field>
 
-        {error && <p className="rounded-pixel bg-berry-400/20 px-3 py-2 font-body text-sm text-ink">{error}</p>}
+        {error && <p className="rounded-card bg-paper-3 px-3 py-2 font-mono text-sm text-ink">{error}</p>}
 
         <div className="flex gap-3 pt-1">
           <PixelButton variant="ghost" full onClick={onClose}>
@@ -179,12 +180,13 @@ export function LogMealSheet({ open, onClose, onLogged }: LogMealSheetProps) {
   )
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) {
   return (
     <div>
       <div className="mb-2 flex items-center gap-2">
-        <span className="font-body text-sm font-extrabold text-ink">{label}</span>
-        {required && <span className="font-body text-xs text-muted">Required</span>}
+        <span className="font-mono text-sm font-medium text-ink">{label}</span>
+        {/* Only optional fields are marked; required is the unstated default. */}
+        {optional && <span className="font-mono text-xs text-muted">Optional</span>}
       </div>
       {children}
     </div>

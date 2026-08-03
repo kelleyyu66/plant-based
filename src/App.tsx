@@ -14,7 +14,7 @@ import { Education } from './screens/education/Education'
 
 function Splash() {
   return (
-    <div className="grid min-h-screen w-full max-w-phone place-items-center bg-forest-900">
+    <div className="grid min-h-screen w-full max-w-phone place-items-center bg-paper">
       <MooCow mood="idle" scale={9} />
     </div>
   )

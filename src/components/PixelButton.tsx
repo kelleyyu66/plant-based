@@ -8,23 +8,22 @@ interface PixelButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANTS: Record<Variant, string> = {
-  // lime CTA on dark surfaces / ink text
-  primary: 'bg-lime-500 text-ink border-ink hover:bg-lime-400',
-  // white on dark
-  dark: 'bg-paper-2 text-forest-900 border-ink hover:bg-cloud',
-  // outline
-  ghost: 'bg-transparent text-ink border-ink hover:bg-black/5',
+  // Primary CTA: filled cow-spot black, as specified for "Log a meal".
+  primary: 'bg-ink text-paper-2 border border-ink hover:bg-ink/90',
+  // Outline on white.
+  ghost: 'bg-transparent text-ink border border-ink hover:bg-paper-3',
+  dark: 'bg-paper-2 text-ink border border-ink hover:bg-paper-3',
 }
 
-/** Chunky pixel-bevel button. Press collapses the bevel. design.md §5–§6. */
+/** Pill button, hairline stroke. (Name kept so callers don't churn.) */
 export function PixelButton({ variant = 'primary', full, className, disabled, ...rest }: PixelButtonProps) {
   return (
     <button
       disabled={disabled}
       className={[
-        'font-body font-extrabold text-base rounded-pixel border-2 px-5 py-3',
-        'transition-transform active:translate-y-[3px] active:shadow-none shadow-pixel',
-        'disabled:opacity-50 disabled:shadow-none disabled:translate-y-[3px] disabled:cursor-not-allowed',
+        'font-mono text-[15px] font-medium rounded-pill px-6 py-3',
+        'transition-transform active:scale-[0.98]',
+        'disabled:opacity-40 disabled:cursor-not-allowed',
         full ? 'w-full' : '',
         VARIANTS[variant],
         className ?? '',

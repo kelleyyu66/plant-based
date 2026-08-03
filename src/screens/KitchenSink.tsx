@@ -20,10 +20,10 @@ export function KitchenSink() {
   const [n, setN] = useState(1)
 
   return (
-    <div className="min-h-full w-full max-w-phone bg-forest-900 px-4 py-6 text-paper">
+    <div className="min-h-full w-full max-w-phone bg-paper px-4 py-6 text-ink">
       <Confetti fire={fire} />
-      <h1 className="mb-1 font-pixel text-2xl text-lime-400">Kitchen Sink</h1>
-      <p className="mb-6 font-body text-sm text-paper/70">Pixel UI kit — Phase 0</p>
+      <h1 className="mb-1 font-mono text-2xl text-ink">Kitchen Sink</h1>
+      <p className="mb-6 font-mono text-sm text-muted">Pixel UI kit — Phase 0</p>
 
       <Section title="Moo">
         <div className="flex items-end gap-6">
@@ -46,7 +46,7 @@ export function KitchenSink() {
         <div className="flex flex-wrap gap-3">
           <PixelButton variant="primary">Primary</PixelButton>
           <PixelButton variant="dark">Dark</PixelButton>
-          <PixelButton variant="ghost" className="text-paper border-paper">
+          <PixelButton variant="ghost" className="text-ink border-paper">
             Ghost
           </PixelButton>
           <PixelButton disabled>Disabled</PixelButton>
@@ -93,7 +93,7 @@ export function KitchenSink() {
 
       <Section title="Cards & sheet">
         <Card tone="forest" className="mb-3">
-          <p className="font-body text-sm">A forest card sits on the Home canvas.</p>
+          <p className="font-mono text-sm">A forest card sits on the Home canvas.</p>
         </Card>
         <div className="flex gap-3">
           <PixelButton variant="primary" onClick={() => setSheet(true)}>
@@ -110,7 +110,7 @@ export function KitchenSink() {
           {Array.from({ length: AVATAR_COUNT }).map((_, i) => (
             <div key={i} className="flex flex-col items-center">
               <Avatar index={i} size="md" />
-              <span className="mt-0.5 text-[9px] text-paper/60">{animalName(i)}</span>
+              <span className="mt-0.5 text-[9px] text-muted">{animalName(i)}</span>
             </div>
           ))}
         </div>
@@ -123,7 +123,7 @@ export function KitchenSink() {
       </Section>
 
       <BottomSheet open={sheet} onClose={() => setSheet(false)} title="Add item">
-        <p className="font-body text-ink-soft">The logging form lives here in Phase 3.</p>
+        <p className="font-mono text-muted">The logging form lives here in Phase 3.</p>
       </BottomSheet>
     </div>
   )
@@ -132,7 +132,7 @@ export function KitchenSink() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-8">
-      <h2 className="mb-3 font-pixel text-sm uppercase tracking-wide text-paper/80">{title}</h2>
+      <h2 className="mb-3 font-mono text-sm uppercase tracking-wide text-ink-soft">{title}</h2>
       {children}
     </section>
   )

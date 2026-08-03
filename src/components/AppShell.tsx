@@ -17,18 +17,21 @@ export function AppShell() {
   )
 }
 
-/** Floating "Log meal" button, shown on Home and Meals. */
+/** Floating "Log a meal" pill — filled cow-spot black. Home and Meals only. */
 function FloatingLog() {
   const { pathname } = useLocation()
   const { openLog } = useLogMealFlow()
   if (pathname !== '/home' && pathname !== '/meals') return null
   return (
-    <button
-      onClick={openLog}
-      className="fixed bottom-20 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border-2 border-ink bg-lime-500 px-6 py-3 font-body font-extrabold text-ink shadow-pixel transition-transform active:translate-y-[3px] active:shadow-none"
-      style={{ maxWidth: '90%' }}
-    >
-      🍴 Log meal
-    </button>
+    // Scrim keeps scrolling content from colliding with the CTA.
+    <div className="pointer-events-none fixed inset-x-0 bottom-[60px] z-40 flex justify-center pb-4 pt-10 [background:linear-gradient(to_top,#FAF9F5_38%,transparent)]">
+      <button
+        onClick={openLog}
+        className="pointer-events-auto rounded-pill bg-ink px-9 py-3.5 font-mono text-[15px] text-paper-2 transition-transform active:scale-[0.98]"
+        style={{ maxWidth: '90%' }}
+      >
+        Log a meal
+      </button>
+    </div>
   )
 }

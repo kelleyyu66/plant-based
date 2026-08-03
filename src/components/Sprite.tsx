@@ -1,25 +1,31 @@
+import { PawPrint } from '@phosphor-icons/react'
 import type { SpriteVariant } from '@/lib/types'
 import { animalName } from '@/content/animals'
 
 interface SpriteProps {
   index: number
   variant?: SpriteVariant
-  /** Display size in px. Prefer integer multiples of 64 to stay crisp. design.md §8. */
+  /** Display size in px. */
   size?: number
   className?: string
 }
 
-/** Renders one pre-sliced animal avatar, pixelated. */
-export function Sprite({ index, variant = 'regular', size = 64, className }: SpriteProps) {
-  const idx = String(index).padStart(2, '0')
+/**
+ * ILLUSTRATION SLOT — one critter avatar.
+ *
+ * The critter artwork is intentionally not wired up yet (see /avatars, which is
+ * gitignored), so this renders a neutral placeholder mark rather than a broken
+ * image. Swap the icon for the hand-drawn critter art when it lands.
+ */
+export function Sprite({ index, size = 64, className }: SpriteProps) {
   return (
-    <img
-      src={`/avatars/${variant}/${idx}.png`}
-      width={size}
-      height={size}
-      alt={animalName(index)}
-      className={`pixelated ${className ?? ''}`}
-      draggable={false}
-    />
+    <span
+      role="img"
+      aria-label={animalName(index)}
+      className={`grid place-items-center ${className ?? ''}`}
+      style={{ width: size, height: size }}
+    >
+      <PawPrint size={Math.round(size * 0.6)} weight="regular" className="text-ink-faint" aria-hidden />
+    </span>
   )
 }

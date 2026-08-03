@@ -1,12 +1,20 @@
-@import '@fontsource/silkscreen/400.css';
-@import '@fontsource/silkscreen/700.css';
-@import '@fontsource/nunito/500.css';
-@import '@fontsource/nunito/700.css';
-@import '@fontsource/nunito/800.css';
+/* Everything except H1s. */
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+@import '@fontsource/ibm-plex-mono/600.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* H1 hand lettering — self-hosted from /Schoolbell in the repo root. */
+@font-face {
+  font-family: 'Schoolbell';
+  src: url('/fonts/Schoolbell-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   color-scheme: light;
@@ -20,13 +28,14 @@ body,
 
 body {
   margin: 0;
-  font-family: 'Nunito', system-ui, sans-serif;
-  background: #0d271b;
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  color: #1c1b19;
+  background: #efeee9; /* gutter behind the phone column */
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
 }
 
-/* Pixel art must never be smoothed when scaled. design.md §8 */
+/* Pixel art (the placeholder cow) must never be smoothed when scaled. */
 .pixelated {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
@@ -36,6 +45,12 @@ body {
 #root {
   display: flex;
   justify-content: center;
+}
+
+/* One hairline stroke, used by every container. Kept as a class so the whole
+   app can move to hand-drawn SVG borders in one edit later. */
+.stroke-hair {
+  border: 1px solid #1c1b19;
 }
 
 @media (prefers-reduced-motion: reduce) {

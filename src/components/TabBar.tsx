@@ -1,36 +1,36 @@
 import { NavLink } from 'react-router-dom'
+import { House, ForkKnife, Ranking, Cow } from '@phosphor-icons/react'
 
+// Phosphor line icons; the active tab switches to the filled weight.
 const TABS = [
-  { to: '/home', label: 'Home', icon: '🏠' },
-  { to: '/meals', label: 'Meals', icon: '🍴' },
-  { to: '/leaderboard', label: 'Board', icon: '🏆' },
-  { to: '/profile', label: 'You', icon: '⭐' },
+  { to: '/home', label: 'Home', Icon: House },
+  { to: '/meals', label: 'Meals', Icon: ForkKnife },
+  { to: '/leaderboard', label: 'Boards', Icon: Ranking },
+  { to: '/profile', label: 'You', Icon: Cow },
 ]
 
-/** Bottom navigation, safe-area padded. design.md §6. */
+/** Bottom navigation, safe-area padded. */
 export function TabBar() {
   return (
     <nav
-      className="sticky bottom-0 z-30 flex border-t-2 border-ink bg-paper-2"
+      className="sticky bottom-0 z-30 flex border-t border-ink bg-paper-2"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      {TABS.map((t) => (
+      {TABS.map(({ to, label, Icon }) => (
         <NavLink
-          key={t.to}
-          to={t.to}
+          key={to}
+          to={to}
           className={({ isActive }) =>
             [
-              'flex flex-1 flex-col items-center gap-0.5 py-2 font-body text-[11px] font-bold transition-transform active:scale-95',
-              isActive ? 'text-forest-900' : 'text-muted',
+              'flex flex-1 flex-col items-center gap-1 py-2.5 font-mono text-[11px] transition-transform active:scale-95',
+              isActive ? 'text-ink' : 'text-muted',
             ].join(' ')
           }
         >
           {({ isActive }) => (
             <>
-              <span className={`text-lg ${isActive ? '' : 'grayscale opacity-70'}`} aria-hidden>
-                {t.icon}
-              </span>
-              {t.label}
+              <Icon size={24} weight={isActive ? 'fill' : 'regular'} aria-hidden />
+              {label}
             </>
           )}
         </NavLink>

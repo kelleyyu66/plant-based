@@ -88,3 +88,16 @@ export function useToggleReaction(mealId: string) {
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.reactions(mealId) }),
   })
 }
+
+/** Edit your own profile (used by the editable "About you" panel). */
+export const useUpdateMyProfile = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (patch: Parameters<typeof data.updateMyProfile>[0]) => data.updateMyProfile(patch),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.me })
+      qc.invalidateQueries({ queryKey: qk.profiles })
+      qc.invalidateQueries({ queryKey: qk.leaderboard })
+    },
+  })
+}

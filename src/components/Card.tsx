@@ -1,26 +1,24 @@
 import type { HTMLAttributes } from 'react'
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  tone?: 'light' | 'dark' | 'forest'
+  /** `plain` has no stroke — for sections that only need padding. */
+  tone?: 'outline' | 'plain' | 'light' | 'dark' | 'forest'
   bevel?: boolean
 }
 
-const TONES = {
-  light: 'bg-paper-2 text-ink border-ink',
-  dark: 'bg-forest-800 text-paper border-black/30',
-  forest: 'bg-forest-700 text-paper border-black/30',
+/**
+ * Every container in the hand-drawn pass is the same thing: a hairline
+ * cow-spot-black stroke on white with a soft corner. Tone aliases are kept so
+ * un-migrated callers still render correctly.
+ */
+const TONES: Record<string, string> = {
+  outline: 'bg-paper-2 text-ink border border-ink',
+  plain: 'bg-transparent text-ink border-0',
+  light: 'bg-paper-2 text-ink border border-ink',
+  dark: 'bg-paper-2 text-ink border border-ink',
+  forest: 'bg-paper-3 text-ink border border-ink',
 }
 
-export function Card({ tone = 'light', bevel, className, ...rest }: CardProps) {
-  return (
-    <div
-      className={[
-        'rounded-pixel border-2 p-4',
-        TONES[tone],
-        bevel ? 'shadow-pixel' : '',
-        className ?? '',
-      ].join(' ')}
-      {...rest}
-    />
-  )
+export function Card({ tone = 'outline', className, ...rest }: CardProps) {
+  return <div className={['rounded-card p-4', TONES[tone] ?? TONES.outline, className ?? ''].join(' ')} {...rest} />
 }

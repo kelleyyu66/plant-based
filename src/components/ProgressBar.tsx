@@ -9,10 +9,9 @@ interface ProgressBarProps {
   fillClass?: string
 }
 
-/** Determinate progress with a springy fill and over-goal glow. design.md §6–§7. */
-export function ProgressBar({ value, max, segments, className, fillClass = 'bg-lime-400' }: ProgressBarProps) {
+/** Hairline-stroked capsule with a soft green fill, per the reference. */
+export function ProgressBar({ value, max, segments, className, fillClass = 'bg-grass' }: ProgressBarProps) {
   const pct = max > 0 ? Math.min(1, value / max) : 0
-  const over = value > max
 
   if (segments) {
     return (
@@ -20,7 +19,7 @@ export function ProgressBar({ value, max, segments, className, fillClass = 'bg-l
         {Array.from({ length: segments }).map((_, i) => (
           <div
             key={i}
-            className={`h-3 flex-1 rounded-pixel-sm border-2 border-ink/70 ${i < value ? fillClass : 'bg-black/20'}`}
+            className={`h-3.5 flex-1 rounded-pill border border-ink ${i < value ? fillClass : 'bg-paper-2'}`}
           />
         ))}
       </div>
@@ -28,9 +27,9 @@ export function ProgressBar({ value, max, segments, className, fillClass = 'bg-l
   }
 
   return (
-    <div className={`h-3 overflow-hidden rounded-full border-2 border-ink/70 bg-black/20 ${className ?? ''}`}>
+    <div className={`h-3.5 overflow-hidden rounded-pill border border-ink bg-paper-2 ${className ?? ''}`}>
       <motion.div
-        className={`h-full rounded-full ${fillClass} ${over ? 'shadow-[0_0_8px_2px_rgba(183,224,106,0.8)]' : ''}`}
+        className={`h-full rounded-pill ${fillClass}`}
         initial={false}
         animate={{ width: `${pct * 100}%` }}
         transition={{ type: 'spring', stiffness: 180, damping: 22 }}
