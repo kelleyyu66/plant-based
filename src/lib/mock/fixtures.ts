@@ -54,7 +54,15 @@ export interface MockData {
   reactions: Reaction[]
 }
 
+/**
+ * Real launch: the cohort starts from zero — no fabricated members, meals,
+ * points, or photos. Flip to true to bring back the demo cohort (handy for
+ * screenshots and layout work).
+ */
+const DEMO_DATA = false
+
 export function buildMockData(): MockData {
+  if (!DEMO_DATA) return { profiles: [], meals: [], comments: [], reactions: [] }
   const rand = rng(20260629)
   const pick = <T>(arr: T[]) => arr[Math.floor(rand() * arr.length)]
 

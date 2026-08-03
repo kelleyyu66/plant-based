@@ -5,8 +5,8 @@ import { toCohortDate } from './dates'
  * The home-screen landscape.
  *
  * One element unlocks per DAY the user logged food (back-dated logs count), in
- * the order below — matching the day-release reference. Day 1 is the base scene
- * (grass + cow), so the first unlockable arrives on day 2.
+ * the order below — matching the day-release reference. The first element
+ * unlocks with the first meal logged on day 1.
  */
 
 export type SceneItemId = 'mountain' | 'tree' | 'windmill' | 'barn' | 'flowers' | 'chicken'
@@ -81,16 +81,16 @@ export function loggedDays(meals: Meal[]): string[] {
 
 /**
  * Which day of the challenge the user is on (1-based), counting only days they
- * logged. Day 1 unlocks nothing — the base scene is the reward for starting.
+ * logged.
  */
 export function challengeDayCount(meals: Meal[], today: string = toCohortDate()): number {
   return loggedDays(meals).filter((d) => d <= today).length
 }
 
-/** Items unlocked so far: one per logged day beyond the first. */
+/** Items unlocked so far: one per logged day, starting with day 1's first meal. */
 export function unlockedItems(meals: Meal[]): SceneItemDef[] {
   const days = challengeDayCount(meals)
-  return SCENE_ITEMS.slice(0, Math.max(0, Math.min(SCENE_ITEMS.length, days - 1)))
+  return SCENE_ITEMS.slice(0, Math.max(0, Math.min(SCENE_ITEMS.length, days)))
 }
 
 export function lockedItems(meals: Meal[]): SceneItemDef[] {

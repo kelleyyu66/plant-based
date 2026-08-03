@@ -265,8 +265,8 @@ export function HomeScene({ meals, says }: Props) {
             {visible.filter((p) => FRONT_OF_COW.includes(p.item)).map(renderItem)}
           </div>
 
-          {/* Add elements. */}
-          {unlocked.length > 0 && !trayOpen && (
+          {/* Add elements — always available; locked items preview in the tray. */}
+          {!trayOpen && (
             <button
               onClick={() => setTrayOpen(true)}
               aria-label="Add elements to your pasture"
