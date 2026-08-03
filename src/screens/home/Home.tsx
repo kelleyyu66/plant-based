@@ -33,7 +33,7 @@ export function Home() {
 
   const impact = impactEquivalents(impactKg)
   const mealsCount = mealsToday?.length ?? 0
-  const top = leaderboard?.slice(0, 5) ?? []
+  const board = leaderboard ?? []
 
   // The cow speaks in moments, not constantly: the bubble shows for a few
   // seconds on arrival, then again periodically.
@@ -115,23 +115,18 @@ export function Home() {
         </div>
       </section>
 
-      {/* Leaderboard preview */}
-      {top.length > 0 && (
+      {/* Leaderboard — the whole cohort, no cut-off. */}
+      {board.length > 0 && (
         <section className="px-6 pt-9">
-          <div className="flex items-center justify-between">
-            <h2 className="font-mono text-[15px] text-ink">Leaderboard</h2>
-            <button className="font-mono text-[12px] text-muted underline" onClick={() => nav('/leaderboard')}>
-              See all
-            </button>
-          </div>
+          <h2 className="font-mono text-[15px] text-ink">Leaderboard</h2>
           <div className="mt-2.5 overflow-hidden rounded-card border border-ink bg-paper-2 px-3">
-            {top.map((e, i) => (
+            {board.map((e, i) => (
               <LeaderRow
                 key={e.profile.id}
                 rank={i + 1}
                 profile={e.profile}
                 points={e.points}
-                highlight={e.profile.id === 'me'}
+                highlight={e.profile.id === profile?.id}
                 onClick={() => nav(`/profile/${e.profile.id}`)}
               />
             ))}

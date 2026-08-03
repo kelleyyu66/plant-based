@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { TabBar } from './TabBar'
+import { PullToRefresh } from './PullToRefresh'
 import { LogMealProvider, useLogMealFlow } from '@/screens/meals/LogMealProvider'
 
 /** Phone-column frame with the bottom tab bar + global log-meal flow. */
@@ -7,9 +8,11 @@ export function AppShell() {
   return (
     <LogMealProvider>
       <div className="relative flex min-h-[100dvh] w-full max-w-phone flex-col bg-paper">
-        <div className="flex-1">
-          <Outlet />
-        </div>
+        <PullToRefresh>
+          <div className="flex-1">
+            <Outlet />
+          </div>
+        </PullToRefresh>
         <FloatingLog />
         <TabBar />
       </div>

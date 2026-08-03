@@ -3,13 +3,14 @@ import { LeaderRow } from '@/components/LeaderRow'
 import { H1 } from '@/components/H1'
 import { NotificationBell } from '@/components/Notifications'
 import { useAppNotifications } from '@/hooks/useAppNotifications'
-import { useLeaderboard } from '@/hooks/useData'
+import { useLeaderboard, useMyProfile } from '@/hooks/useData'
 import type { LeaderboardEntry, StartingDiet } from '@/lib/types'
 
 export function Leaderboard() {
   const nav = useNavigate()
   const notifications = useAppNotifications()
   const { data: entries, isLoading } = useLeaderboard()
+  const { data: me } = useMyProfile()
 
   const section = (diet: StartingDiet) => (entries ?? []).filter((e) => e.profile.startingDiet === diet)
 
@@ -24,10 +25,16 @@ export function Leaderboard() {
         <p className="p-6 font-mono text-[13px] text-muted">Tallying points…</p>
       ) : (
         <>
-          <Section title="Previous vegetarians" entries={section('vegetarian')} onOpen={(id) => nav(`/profile/${id}`)} />
+          <Section
+            title="Previous vegetarians"
+            entries={section('vegetarian')}
+            meId={me?.id}
+            onOpen={(id) => nav(`/profile/${id}`)}
+          />
           <Section
             title="Previous meat-eaters & flexitarians"
             entries={section('meat_or_flexitarian')}
+            meId={me?.id}
             onOpen={(id) => nav(`/profile/${id}`)}
           />
         </>
@@ -39,10 +46,12 @@ export function Leaderboard() {
 function Section({
   title,
   entries,
+  meId,
   onOpen,
 }: {
   title: string
   entries: LeaderboardEntry[]
+  meId?: string
   onOpen: (id: string) => void
 }) {
   return (
@@ -58,7 +67,7 @@ function Section({
               rank={i + 1}
               profile={e.profile}
               points={e.points}
-              highlight={e.profile.id === 'me'}
+              highlight={e.profile.id === meId}
               onClick={() => onOpen(e.profile.id)}
             />
           ))

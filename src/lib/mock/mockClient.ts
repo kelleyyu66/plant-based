@@ -69,7 +69,7 @@ export class MockProvider implements DataProvider {
    * daily-quest bonuses. Bonuses are computed per day from that day's meals, so
    * they count once per day no matter how many qualifying meals are logged.
    */
-  private pointsForMeals(meals: Meal[]): number {
+  protected pointsForMeals(meals: Meal[]): number {
     const base = meals.reduce((sum, m) => sum + m.points, 0)
     const byDay = new Map<string, Meal[]>()
     for (const m of meals) {

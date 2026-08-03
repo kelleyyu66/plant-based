@@ -32,7 +32,8 @@ export function Onboarding() {
 
 // 2 — Basic info: name + passwordless email login
 function BasicInfo() {
-  const { name, email, setField, next } = useOnboarding()
+  const { name, email, setField, next, reset } = useOnboarding()
+  const nav = useNavigate()
   const auth = useSignUpWithEmail()
   const qc = useQueryClient()
   // Email alone is the login, so a returning user only needs their email.
@@ -40,10 +41,15 @@ function BasicInfo() {
   const join = async () => {
     try {
       await auth.mutateAsync(email.trim())
-      // Returning user? Their profile already exists — the app routes them home
-      // once `me` resolves, so we skip the rest of onboarding.
+      // Returning user? Their profile already exists — skip the rest of
+      // onboarding and drop them straight on Home.
       const profile = await qc.fetchQuery({ queryKey: qk.me, queryFn: () => data.getMyProfile() })
-      if (!profile) next()
+      if (profile) {
+        reset()
+        nav('/home', { replace: true })
+      } else {
+        next()
+      }
     } catch {
       // The mutation logs the error; keep the user on this step so they can retry.
     }
