@@ -76,6 +76,35 @@ export function usAverageImpact(): StartingImpact {
   return startingImpact(US_AVERAGE_PLANT_FREQUENCY)
 }
 
+// Onboarding starting-impact chart: group the survey proteins into emission
+// buckets (kg CO2e per typical serving) so we can rank what drives someone's
+// footprint. Same motivational spirit as MEAL_FOOTPRINT_KG, not an audited LCA.
+export interface ProteinImpact {
+  label: string
+  footprintKg: number
+  /** Survey protein names (from onboarding) that fall in this bucket. */
+  members: string[]
+}
+
+export const PROTEIN_IMPACTS: ProteinImpact[] = [
+  { label: 'Beef', footprintKg: 6.6, members: ['Beef'] },
+  { label: 'Pork', footprintKg: 1.7, members: ['Pork'] },
+  { label: 'Fish', footprintKg: 1.5, members: ['Fish'] },
+  { label: 'Chicken', footprintKg: 1.3, members: ['Chicken'] },
+  { label: 'Dairy & eggs', footprintKg: 0.9, members: ['Eggs', 'Dairy'] },
+  { label: 'Plant-based', footprintKg: 0.4, members: ['Tofu', 'Beans', 'Lentils', 'Nuts'] },
+]
+
+/** Meat buckets — the ones a "replace 3 meals" nudge makes sense for. */
+export const MEAT_PROTEIN_LABELS = new Set(['Beef', 'Pork', 'Fish', 'Chicken'])
+
+/** The buckets a user actually eats, highest-impact first (for the chart). */
+export function proteinImpactChart(proteins: string[]): ProteinImpact[] {
+  return PROTEIN_IMPACTS.filter((b) => b.members.some((m) => proteins.includes(m))).sort(
+    (a, b) => b.footprintKg - a.footprintKg,
+  )
+}
+
 export function startingImpact(plantFrequency: string): StartingImpact {
   const mealsPerWeek = 21
   const meaty = MEATY_FRACTION[plantFrequency] ?? 0.5

@@ -28,6 +28,8 @@ export interface CowMessageVars {
   item?: string
   /** The user's first name. */
   name?: string
+  /** The cow's name (defaults to Moo). */
+  cow?: string
 }
 
 const TEMPLATES: Record<CowTrigger, string[]> = {
@@ -47,9 +49,9 @@ const TEMPLATES: Record<CowTrigger, string[]> = {
     'Winding down? Log what you ate today.',
   ],
   hungry: [
-    'Moo is hungry — log your food to feed Moo!',
-    'Moo’s tummy is rumbling. Log a meal to feed her!',
-    'Nothing logged yet today — feed Moo by logging your food.',
+    '{cow} is hungry — log your food to feed {cow}!',
+    '{cow}’s tummy is rumbling. Log a meal to feed {cow}!',
+    'Nothing logged yet today — feed {cow} by logging your food.',
   ],
   late_no_dinner: [
     'It’s past dinner time. Have you eaten yet? Log your meal.',
@@ -91,6 +93,7 @@ export function cowMessage(trigger: CowTrigger, vars: CowMessageVars = {}, seed 
   const options = TEMPLATES[trigger]
   const line = options[Math.abs(seed) % options.length]
   return line
+    .replace(/\{cow\}/g, vars.cow ?? 'Moo')
     .replace('{points}', String(vars.points ?? 0))
     .replace('{item}', vars.item ?? 'something')
     .replace('{name}', vars.name ?? 'friend')

@@ -16,8 +16,8 @@ import {
 } from '@/hooks/useData'
 import { HomeScene } from '@/components/scene/HomeScene'
 import { impactEquivalents } from '@/lib/impact'
-import { INDIVIDUAL_POINTS_GOAL } from '@/content/seed'
 import { cowMessage, greetingTrigger } from '@/content/cowMessages'
+import { cowNameOr } from '@/content/cowNames'
 import { useUserMeals } from '@/hooks/useData'
 
 export function Home() {
@@ -63,7 +63,7 @@ export function Home() {
       : mealsCount >= 3
         ? 'all_done'
         : greetingTrigger(now.getHours(), dinnerLogged),
-    { name: profile?.displayName },
+    { name: profile?.displayName, cow: cowNameOr(profile?.cowName) },
     now.getDate(),
   )
 
@@ -71,22 +71,22 @@ export function Home() {
 
   return (
     <div className="min-h-full bg-paper pb-52">
-      {/* Greeting + notifications */}
+      {/* Greeting + running points + notifications */}
       <header className="flex items-start justify-between px-6 pt-7">
         <H1>hi {firstName}</H1>
-        <NotificationBell items={notifications.items} dismiss={notifications.dismiss} clearAll={notifications.clearAll} />
+        <div className="flex items-center gap-3 pt-1">
+          <span className="font-mono text-[15px] text-ink">{myPoints} pts</span>
+          <NotificationBell items={notifications.items} dismiss={notifications.dismiss} clearAll={notifications.clearAll} />
+        </div>
       </header>
 
       {/* Hero = the landscape. Elements are added and arranged right here. */}
       <HomeScene meals={myMeals ?? []} says={bubbleVisible ? greeting : undefined} />
 
-      {/* Meters — the progress fill is the app's only color. */}
+      {/* Meter — the progress fill is the app's only color. */}
       <section className="space-y-4 px-6 pt-7">
         <Meter label="Plant based meals today" value={`${mealsCount} of 3`}>
           <ProgressBar value={mealsCount} max={3} />
-        </Meter>
-        <Meter label="Your points" value={`${myPoints}/${INDIVIDUAL_POINTS_GOAL}`}>
-          <ProgressBar value={myPoints} max={INDIVIDUAL_POINTS_GOAL} />
         </Meter>
       </section>
 
@@ -160,8 +160,8 @@ function Metric({ img, value, label }: { img: string; value: string; label: stri
           style={{ height: imgH }}
         />
       </div>
-      <div className="mt-1 font-mono text-[12px] text-ink">{value}</div>
-      <div className="font-mono text-[10px] leading-tight text-muted">{label}</div>
+      <div className="mt-1 font-mono text-[16px] text-ink">{value}</div>
+      <div className="font-mono text-[13px] leading-tight text-muted">{label}</div>
     </div>
   )
 }

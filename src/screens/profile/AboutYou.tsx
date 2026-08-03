@@ -20,7 +20,6 @@ const FAMILIARITY = [
 ] as const
 
 const PROTEINS = ['Beef', 'Pork', 'Chicken', 'Fish', 'Eggs', 'Dairy', 'Tofu', 'Beans', 'Lentils', 'Nuts']
-const GOALS = [3, 5, 7] as const
 
 /**
  * "About you" — everything captured during onboarding, editable afterwards so a
@@ -36,7 +35,6 @@ export function AboutYou({ profile }: { profile: Profile }) {
   const [frequency, setFrequency] = useState(profile.onboarding?.plantFrequency ?? 'sometimes')
   const [familiarity, setFamiliarity] = useState(profile.onboarding?.climateFamiliarity ?? 'new')
   const [proteins, setProteins] = useState<string[]>(profile.onboarding?.proteins ?? [])
-  const [goal, setGoal] = useState<3 | 5 | 7>(profile.streakGoal)
 
   // Re-seed the form whenever we (re)enter edit mode or the profile changes.
   useEffect(() => {
@@ -46,14 +44,13 @@ export function AboutYou({ profile }: { profile: Profile }) {
     setFrequency(profile.onboarding?.plantFrequency ?? 'sometimes')
     setFamiliarity(profile.onboarding?.climateFamiliarity ?? 'new')
     setProteins(profile.onboarding?.proteins ?? [])
-    setGoal(profile.streakGoal)
   }, [profile, editing])
 
   const save = async () => {
     await update.mutateAsync({
       displayName: displayName.trim() || profile.displayName,
       cowName: cowName.trim() || null,
-      streakGoal: goal,
+      streakGoal: profile.streakGoal,
       onboarding: {
         plantFrequency: frequency,
         climateFamiliarity: familiarity,
@@ -67,12 +64,12 @@ export function AboutYou({ profile }: { profile: Profile }) {
     return (
       <section className="mx-6 my-5 rounded-card border border-ink bg-paper-2 p-4">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-mono text-[13px] text-ink">About you</h2>
+          <h2 className="font-mono text-[15px] text-ink">About you</h2>
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 rounded-pill border border-ink px-3 py-1 font-mono text-[12px] text-ink transition-transform active:scale-95"
+            className="flex items-center gap-1.5 rounded-pill border border-ink px-3 py-1 font-mono text-[13px] text-ink transition-transform active:scale-95"
           >
-            <PencilSimple size={13} aria-hidden />
+            <PencilSimple size={14} aria-hidden />
             Edit
           </button>
         </div>
@@ -81,14 +78,13 @@ export function AboutYou({ profile }: { profile: Profile }) {
         <Row label="Plant-based meals" value={FREQ.find((f) => f.v === frequency)?.label ?? '—'} />
         <Row label="Usual proteins" value={proteins.join(', ') || '—'} />
         <Row label="Climate familiarity" value={FAMILIARITY.find((f) => f.v === familiarity)?.label ?? '—'} />
-        <Row label="Streak goal" value={`${profile.streakGoal} days`} />
       </section>
     )
   }
 
   return (
     <section className="mx-6 my-5 rounded-card border border-ink bg-paper-2 p-4">
-      <h2 className="mb-3 font-mono text-[13px] text-ink">About you</h2>
+      <h2 className="mb-3 font-mono text-[15px] text-ink">About you</h2>
 
       <Field label="Your name">
         <input
@@ -136,14 +132,6 @@ export function AboutYou({ profile }: { profile: Profile }) {
         </div>
       </Field>
 
-      <Field label="Streak goal">
-        <div className="flex gap-2">
-          {GOALS.map((g) => (
-            <Chip key={g} label={`${g} days`} selected={goal === g} onClick={() => setGoal(g)} />
-          ))}
-        </div>
-      </Field>
-
       <div className="mt-4 flex gap-2">
         <PixelButton variant="ghost" full onClick={() => setEditing(false)}>
           Cancel
@@ -159,7 +147,7 @@ export function AboutYou({ profile }: { profile: Profile }) {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-4">
-      <div className="mb-1.5 font-mono text-[12px] text-muted">{label}</div>
+      <div className="mb-1.5 font-mono text-[13px] text-muted">{label}</div>
       {children}
     </div>
   )
@@ -167,9 +155,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between gap-3 border-b border-ink/12 py-2 last:border-0">
-      <span className="font-mono text-[12px] text-muted">{label}</span>
-      <span className="text-right font-mono text-[12px] text-ink">{value}</span>
+    <div className="flex justify-between gap-3 border-b border-ink/12 py-2.5 last:border-0">
+      <span className="font-mono text-[14px] text-muted">{label}</span>
+      <span className="text-right font-mono text-[14px] text-ink">{value}</span>
     </div>
   )
 }

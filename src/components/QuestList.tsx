@@ -1,4 +1,3 @@
-import { Info } from '@phosphor-icons/react'
 import type { DailyQuestProgress } from '@/lib/types'
 
 /**
@@ -33,10 +32,6 @@ export function QuestList({ progress }: { progress: DailyQuestProgress }) {
               }`}
             >
               {task.title}
-            </div>
-            <div className="mt-0.5 flex items-center gap-1 font-mono text-[11px] text-muted">
-              <Info size={13} aria-hidden />
-              Get more information
             </div>
           </div>
 

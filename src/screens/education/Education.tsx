@@ -1,6 +1,6 @@
 import { MapPin } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
-import { BEGINNER_GUIDE, PROTEINS, RESTAURANTS, TRADER_JOES_PICKS, YOUTUBE_CHANNELS } from '@/content/education'
+import { DAILY_TIPS, PROTEINS, RESTAURANTS, TRADER_JOES_PICKS, YOUTUBE_CHANNELS } from '@/content/education'
 
 export function Education() {
   const nav = useNavigate()
@@ -13,13 +13,20 @@ export function Education() {
         <span className="font-mono text-base text-ink">Moo’s little cookbook</span>
       </header>
 
-      {/* Beginner guide */}
-      <Section title="Getting started">
+      {/* A tip or two a day, easing into technique as the week goes on. */}
+      <Section title="Tip of the day">
         <div className="space-y-3">
-          {BEGINNER_GUIDE.map((t) => (
-            <div key={t.title} className="rounded-card border border-ink bg-paper-2 p-3">
-              <div className="font-mono font-medium text-ink">{t.title}</div>
-              <p className="mt-1 font-mono text-sm text-muted">{t.body}</p>
+          {DAILY_TIPS.map((d) => (
+            <div key={d.day} className="rounded-card border border-ink bg-paper-2 p-3">
+              <div className="font-mono font-medium text-ink">Day {d.day}</div>
+              <ul className="mt-1 space-y-1">
+                {d.tips.map((tip) => (
+                  <li key={tip} className="flex gap-2 font-mono text-sm text-muted">
+                    <span aria-hidden className="text-grass">•</span>
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

@@ -1,6 +1,6 @@
 // Seed content shared by the mock backend and the Supabase seeder (scripts/seed.mjs).
 // Teams, daily facts, daily quests, and the cow accessory ladder.
-import type { Accessory, DailyChallenge, DailyFact, DailyQuest, Team } from '@/lib/types'
+import type { Accessory, DailyChallenge, DailyFact, Team } from '@/lib/types'
 
 export const TEAMS: Team[] = [
   { id: 'team-kelley', name: 'Kelley’s Herd', captainName: 'Kelley', slug: 'kelley', capacity: 15, color: '#8FCB3C', sort: 0 },
@@ -32,16 +32,6 @@ export const DAILY_FACTS: DailyFact[] = [
   { dayIndex: 19, body: 'Plant-based eating isn’t all-or-nothing—every plant-based meal contributes to lower emissions, reduced resource use, and better diet quality.', sourceUrl: null },
 ]
 
-export const DAILY_QUESTS: DailyQuest[] = [
-  { dayIndex: 0, title: 'Vegan Monday', tier: 'vegan', multiplier: 2, description: 'Log a vegan meal for double points.' },
-  { dayIndex: 1, title: 'Tofu Tuesday', tier: 'vegan', multiplier: 2, description: 'Any vegan meal counts — bonus love for tofu.' },
-  { dayIndex: 2, title: 'Meatless Midweek', tier: null, multiplier: 2, description: 'Any plant-based meal earns double.' },
-  { dayIndex: 3, title: 'Veggie Thursday', tier: 'vegetarian', multiplier: 2, description: 'Vegetarian meals score double today.' },
-  { dayIndex: 4, title: 'Plant Friday', tier: null, multiplier: 2, description: 'Any plant-based meal earns double.' },
-  { dayIndex: 5, title: 'Green Weekend', tier: 'vegan', multiplier: 2, description: 'Vegan meals score double all weekend.' },
-  { dayIndex: 6, title: 'Sunday Funday', tier: null, multiplier: 2, description: 'Any plant-based meal earns double.' },
-]
-
 // The first two tasks are always the same; this third task rotates daily.
 export const DAILY_CHALLENGES: DailyChallenge[] = [
   { dayIndex: 0, kind: 'tofu', title: 'Eat tofu' },
@@ -49,8 +39,7 @@ export const DAILY_CHALLENGES: DailyChallenge[] = [
   { dayIndex: 2, kind: 'five_colours', title: 'Eat 5 colours today' },
   { dayIndex: 3, kind: 'tempeh', title: 'Eat tempeh' },
   { dayIndex: 4, kind: 'cooked_at_home', title: 'Eat or cook all three meals at home' },
-  { dayIndex: 5, kind: 'plant_protein_50g', title: 'Get at least 50g of plant-based protein' },
-  { dayIndex: 6, kind: 'all_plant_meals', title: 'Make all meals plant-based' },
+  { dayIndex: 5, kind: 'all_plant_meals', title: 'Make all meals plant-based' },
 ]
 
 // Cow accessory ladder — unlocks at team point thresholds (team points = sum of members).
@@ -82,8 +71,8 @@ export const TEAM_POINTS_GOAL = 1200
 /** Length of the cohort challenge, in days. */
 export const CHALLENGE_DAYS = 7
 /**
- * The cohort's real start date (YYYY-MM-DD), used to label meals "Day 1"…"Day 7".
- * Left null until the date is fixed; while null it's derived from the earliest
- * logged meal, so the mock fixtures and a live cohort both label correctly.
+ * The cohort's real start date (YYYY-MM-DD), used to label meals "Day 1"…"Day 7"
+ * and to sequence the daily challenges in dayIndex order (start = dayIndex 0).
+ * When null it's derived from the earliest logged meal.
  */
-export const CHALLENGE_START_DATE: string | null = null
+export const CHALLENGE_START_DATE: string | null = '2026-08-03'

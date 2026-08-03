@@ -6,6 +6,9 @@ import { TIER_LABEL, TIME_LABEL } from '@/lib/types'
 interface MealCardProps {
   meal: Meal
   author?: Profile
+  /** Points to show. Defaults to the meal's base; pass the quest-bonus-inclusive
+   *  amount (earnedPointsByMeal) so the badge matches what was banked. */
+  points?: number
   onClick?: () => void
 }
 
@@ -13,7 +16,7 @@ interface MealCardProps {
  * A meal in the 2-col feed. Photos sit in the same hairline-stroked frame as
  * every other container; photoless meals fall back to a neutral placeholder.
  */
-export function MealCard({ meal, author, onClick }: MealCardProps) {
+export function MealCard({ meal, author, points, onClick }: MealCardProps) {
   const [imgOk, setImgOk] = useState(true)
   const showImg = meal.photoUrl && imgOk
 
@@ -36,16 +39,16 @@ export function MealCard({ meal, author, onClick }: MealCardProps) {
             <ForkKnife size={30} className="text-ink-faint" aria-hidden />
           </div>
         )}
-        <span className="absolute right-1.5 top-1.5 rounded-pill border border-ink bg-paper-2/95 px-2 py-0.5 font-mono text-[11px] text-ink">
-          +{meal.points}
+        <span className="absolute right-1.5 top-1.5 rounded-pill border border-ink bg-paper-2/95 px-2 py-0.5 font-mono text-[12px] text-ink">
+          +{points ?? meal.points}
         </span>
       </div>
       <div className="p-2.5">
-        <div className="truncate font-mono text-[11px] text-muted">{author?.displayName ?? 'Someone'}</div>
-        <div className="font-mono text-[13px] text-ink">
+        <div className="truncate font-mono text-[12px] text-muted">{author?.displayName ?? 'Someone'}</div>
+        <div className="font-mono text-[14px] text-ink">
           {TIER_LABEL[meal.tier]} · {TIME_LABEL[meal.mealTime]}
         </div>
-        {meal.caption && <div className="mt-0.5 line-clamp-2 font-mono text-[11px] text-muted">{meal.caption}</div>}
+        {meal.caption && <div className="mt-0.5 line-clamp-2 font-mono text-[12px] text-muted">{meal.caption}</div>}
       </div>
     </button>
   )

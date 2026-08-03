@@ -6,7 +6,7 @@ import { LogMealProvider, useLogMealFlow } from '@/screens/meals/LogMealProvider
 export function AppShell() {
   return (
     <LogMealProvider>
-      <div className="relative flex min-h-screen w-full max-w-phone flex-col bg-paper">
+      <div className="relative flex min-h-[100dvh] w-full max-w-phone flex-col bg-paper">
         <div className="flex-1">
           <Outlet />
         </div>
@@ -23,11 +23,15 @@ function FloatingLog() {
   const { openLog } = useLogMealFlow()
   if (pathname !== '/home' && pathname !== '/meals') return null
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[60px] z-40 flex justify-center pb-4 pt-10">
+    // Sits above the tab bar (nav height + the iOS home-indicator inset) so it
+    // never overlaps it, on any device.
+    <div
+      className="pointer-events-none fixed inset-x-0 z-40 flex justify-center px-6 pb-3 pt-10"
+      style={{ bottom: 'calc(64px + env(safe-area-inset-bottom))' }}
+    >
       <button
         onClick={openLog}
-        className="pointer-events-auto rounded-pill bg-ink px-9 py-3.5 font-mono text-[15px] text-paper-2 transition-transform active:scale-[0.98]"
-        style={{ maxWidth: '90%' }}
+        className="pointer-events-auto w-full max-w-[90%] rounded-pill bg-ink px-9 py-4 font-mono text-[16px] text-paper-2 transition-transform active:scale-[0.98]"
       >
         Log a meal
       </button>

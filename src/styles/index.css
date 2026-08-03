@@ -30,6 +30,16 @@ body {
   overscroll-behavior: none;
 }
 
+/* On phones the app spans the full width, so the desktop gutter has no reason
+   to peek above or below the column — paint the page itself paper there so the
+   background fills the whole screen vertically. */
+@media (max-width: 430px) {
+  html,
+  body {
+    background: #faf9f5;
+  }
+}
+
 /* Pixel art (the placeholder cow) must never be smoothed when scaled. */
 .pixelated {
   image-rendering: pixelated;

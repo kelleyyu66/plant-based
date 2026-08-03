@@ -5,8 +5,10 @@ import { EmptyState } from '@/components/EmptyState'
 import { H1 } from '@/components/H1'
 import { NotificationBell } from '@/components/Notifications'
 import { useAppNotifications } from '@/hooks/useAppNotifications'
-import { useMeals, useProfiles } from '@/hooks/useData'
+import { useMeals, useMyProfile, useProfiles } from '@/hooks/useData'
 import { challengeDay, shortDate, toCohortDate } from '@/lib/dates'
+import { earnedPointsByMeal } from '@/lib/dailyQuest'
+import { cowNameOr } from '@/content/cowNames'
 import { CHALLENGE_START_DATE } from '@/content/seed'
 import { MEAL_TIMES, TIME_LABEL, type MealTime } from '@/lib/types'
 
@@ -23,8 +25,12 @@ export function Meals() {
   const notifications = useAppNotifications()
   const { data: meals, isLoading } = useMeals()
   const { data: profiles } = useProfiles()
+  const { data: myProfile } = useMyProfile()
 
   const byId = useMemo(() => new Map((profiles ?? []).map((p) => [p.id, p])), [profiles])
+
+  // Badge points include each meal's share of the day's quest bonuses.
+  const earned = useMemo(() => earnedPointsByMeal(meals ?? []), [meals])
 
   // Day 1 is the cohort start when known, else the earliest meal on record.
   const startDate = useMemo(() => {
@@ -40,7 +46,8 @@ export function Meals() {
   }, [meals])
 
   const [day, setDay] = useState<string | null>(null)
-  const [slot, setSlot] = useState<MealTime>('breakfast')
+  // null = no slot filter: show every meal logged that day.
+  const [slot, setSlot] = useState<MealTime | null>(null)
   const activePill = useRef<HTMLButtonElement>(null)
 
   // Land on the most recent day once data arrives.
@@ -64,16 +71,12 @@ export function Meals() {
     [dayMeals],
   )
 
-  // Don't strand the user on an empty tab when they switch days.
-  useEffect(() => {
-    if (counts[slot] === 0) {
-      const withContent = MEAL_TIMES.find((t) => counts[t] > 0)
-      if (withContent) setSlot(withContent)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [day])
-
-  const visible = useMemo(() => dayMeals.filter((m) => m.mealTime === slot), [dayMeals, slot])
+  // Meals for the selected day, filtered by slot only when one is chosen.
+  // Unfiltered, they read top-to-bottom as breakfast → lunch → dinner.
+  const visible = useMemo(() => {
+    const list = slot ? dayMeals.filter((m) => m.mealTime === slot) : dayMeals
+    return [...list].sort((a, b) => MEAL_TIMES.indexOf(a.mealTime) - MEAL_TIMES.indexOf(b.mealTime))
+  }, [dayMeals, slot])
 
   return (
     <div className="min-h-full bg-paper pb-40">
@@ -85,7 +88,7 @@ export function Meals() {
       {isLoading ? (
         <p className="p-6 font-mono text-[13px] text-muted">Rounding up the herd…</p>
       ) : days.length === 0 ? (
-        <EmptyState message="No meals yet. Be the first — Moo is watching, hopefully." />
+        <EmptyState message={`No meals yet. Be the first — ${cowNameOr(myProfile?.cowName)} is watching, hopefully.`} />
       ) : (
         <>
           {/* Layer 1 — the day of the challenge. */}
@@ -100,7 +103,7 @@ export function Meals() {
                     ref={active ? activePill : undefined}
                     onClick={() => setDay(d)}
                     aria-pressed={active}
-                    className={`shrink-0 rounded-pill border border-ink px-3.5 py-1 font-mono text-[12px] transition-transform active:scale-95 ${
+                    className={`shrink-0 rounded-pill border border-ink px-3.5 py-1.5 font-mono text-[13px] transition-transform active:scale-95 ${
                       active ? 'bg-ink text-paper-2' : 'bg-paper-2 text-ink'
                     }`}
                   >
@@ -111,18 +114,19 @@ export function Meals() {
             </div>
           </div>
 
-          {day && <p className="px-6 pt-2 font-mono text-[11px] text-muted">{shortDate(day)}</p>}
+          {day && <p className="px-6 pt-2 font-mono text-[12px] text-muted">{shortDate(day)}</p>}
 
-          {/* Layer 2 — breakfast / lunch / dinner, auto-bucketed on upload. */}
-          <div className="mt-3 flex gap-2 px-6">
+          {/* Layer 2 — optional breakfast / lunch / dinner filter. Tapping a slot
+              filters to it; tapping it again (or Clear) shows every meal. */}
+          <div className="mt-3 flex items-stretch gap-2 px-6">
             {MEAL_TIMES.map((t) => {
               const active = t === slot
               return (
                 <button
                   key={t}
-                  onClick={() => setSlot(t)}
+                  onClick={() => setSlot(active ? null : t)}
                   aria-pressed={active}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-card border px-2 py-2 font-mono text-[12px] transition-transform active:scale-95 ${
+                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-card border px-2 py-2.5 font-mono text-[13px] transition-transform active:scale-95 ${
                     active ? 'border-ink bg-grass-pale text-ink' : 'border-ink/35 bg-paper-2 text-muted'
                   }`}
                 >
@@ -131,17 +135,30 @@ export function Meals() {
                 </button>
               )
             })}
+            <button
+              onClick={() => setSlot(null)}
+              disabled={slot === null}
+              className="shrink-0 rounded-card border border-ink/35 px-3 py-2.5 font-mono text-[13px] text-muted transition-transform active:scale-95 disabled:opacity-40"
+            >
+              Clear
+            </button>
           </div>
 
           {visible.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 px-6 pt-4">
               {visible.map((m) => (
-                <MealCard key={m.id} meal={m} author={byId.get(m.userId)} onClick={() => nav(`/meals/${m.id}`)} />
+                <MealCard
+                  key={m.id}
+                  meal={m}
+                  author={byId.get(m.userId)}
+                  points={earned.get(m.id)}
+                  onClick={() => nav(`/meals/${m.id}`)}
+                />
               ))}
             </div>
           ) : (
-            <p className="px-6 pt-10 text-center font-mono text-[13px] text-muted">
-              No {TIME_LABEL[slot].toLowerCase()} logged on this day yet.
+            <p className="px-6 pt-10 text-center font-mono text-[14px] text-muted">
+              {slot ? `No ${TIME_LABEL[slot].toLowerCase()} logged on this day yet.` : 'No meals logged on this day yet.'}
             </p>
           )}
         </>

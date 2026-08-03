@@ -95,13 +95,6 @@ export interface DailyFact {
   sourceUrl: string | null
 }
 
-export interface DailyQuest {
-  dayIndex: number
-  title: string
-  tier: MealTier | null // null = any plant-based meal
-  multiplier: number
-  description: string
-}
 
 export interface DailyChallenge {
   dayIndex: number

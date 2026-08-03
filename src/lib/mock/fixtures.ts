@@ -119,7 +119,7 @@ export function buildMockData(): MockData {
           caption: rand() < 0.7 ? pick(CAPTIONS) : null,
           questTags: [],
           plantProteinGrams: 0,
-          points: computeMealPoints(tier, hasPhoto, null),
+          points: computeMealPoints(tier, hasPhoto),
           co2SavedKg: co2SavedKg(tier),
           createdAt: dateNDaysAgo(days - 1 - d),
         })

@@ -1,42 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { computeMealPoints, TIER_POINTS } from './points'
+import { computeMealPoints } from './points'
 import { co2SavedKg, impactEquivalents, MILES_PER_KG, SHOWERS_PER_KG, TREES_PER_KG } from './impact'
 import { applyLog } from './streak'
-import type { DailyQuest, MealTier } from './types'
-
-const quest = (tier: MealTier | null, multiplier = 2): DailyQuest => ({
-  dayIndex: 0,
-  title: 't',
-  tier,
-  multiplier,
-  description: '',
-})
 
 describe('points', () => {
   it('scores each tier', () => {
-    expect(computeMealPoints('vegan', false, null)).toBe(10)
-    expect(computeMealPoints('vegetarian', false, null)).toBe(8)
-    expect(computeMealPoints('beef', false, null)).toBe(0)
+    expect(computeMealPoints('vegan', false)).toBe(10)
+    expect(computeMealPoints('vegetarian', false)).toBe(8)
+    expect(computeMealPoints('beef', false)).toBe(0)
   })
 
   it('adds a flat photo bonus', () => {
-    expect(computeMealPoints('vegan', true, null)).toBe(11)
-    expect(computeMealPoints('beef', true, null)).toBe(1)
-  })
-
-  it('multiplies tier base only, not the photo bonus', () => {
-    // vegan quest 2x + photo => 20 + 1 = 21 (NOT (10+1)*2)
-    expect(computeMealPoints('vegan', true, quest('vegan'))).toBe(21)
-  })
-
-  it('quest only applies to the matching tier', () => {
-    expect(computeMealPoints('chicken', false, quest('vegan'))).toBe(TIER_POINTS.chicken)
-  })
-
-  it('null-tier quest applies to any plant-based meal', () => {
-    expect(computeMealPoints('vegan', false, quest(null))).toBe(20)
-    expect(computeMealPoints('vegetarian', false, quest(null))).toBe(16)
-    expect(computeMealPoints('fish', false, quest(null))).toBe(5)
+    expect(computeMealPoints('vegan', true)).toBe(11)
+    expect(computeMealPoints('beef', true)).toBe(1)
   })
 })
 

@@ -8,13 +8,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Moo — Plant-Based Challenge',
         short_name: 'Moo',
         description: 'Take care of a cow. Save the planet. Sort of.',
-        theme_color: '#123524',
-        background_color: '#123524',
+        theme_color: '#FAF9F5',
+        background_color: '#FAF9F5',
         display: 'standalone',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },

@@ -7,13 +7,11 @@ import type {
 } from '../dataProvider'
 import type { Comment, DailyQuestProgress, LeaderboardEntry, Meal, Profile, Reaction, Team, TeamStanding } from '../types'
 import { TEAMS } from '@/content/seed'
-import { DAILY_QUESTS } from '@/content/seed'
 import { computeMealPoints } from '../points'
 import { co2SavedKg } from '../impact'
 import { applyLog, streakBonus } from '../streak'
-import { activeQuest } from '../quests'
 import { toCohortDate } from '../dates'
-import { activeDailyChallenge, dailyQuestProgress } from '../dailyQuest'
+import { activeDailyChallenge, dailyQuestBonus, dailyQuestProgress } from '../dailyQuest'
 import { buildMockData, type MockData } from './fixtures'
 
 const LS_KEY = 'moo.mock.v1'
@@ -64,6 +62,27 @@ export class MockProvider implements DataProvider {
   }
   private allReactions(): Reaction[] {
     return [...this.base.reactions, ...this.p.myReactions]
+  }
+
+  /**
+   * A user's banked points: every meal's base score plus each day's completed
+   * daily-quest bonuses. Bonuses are computed per day from that day's meals, so
+   * they count once per day no matter how many qualifying meals are logged.
+   */
+  private pointsForMeals(meals: Meal[]): number {
+    const base = meals.reduce((sum, m) => sum + m.points, 0)
+    const byDay = new Map<string, Meal[]>()
+    for (const m of meals) {
+      const day = byDay.get(m.mealDate) ?? []
+      day.push(m)
+      byDay.set(m.mealDate, day)
+    }
+    let bonus = 0
+    for (const [date, dayMeals] of byDay) {
+      const challenge = activeDailyChallenge(new Date(`${date}T12:00:00`))
+      bonus += dailyQuestBonus(dailyQuestProgress(dayMeals, challenge))
+    }
+    return base + bonus
   }
 
   // ---- session ----
@@ -124,25 +143,21 @@ export class MockProvider implements DataProvider {
     return [...TEAMS].sort((a, b) => a.sort - b.sort)
   }
   async userPoints(userId: string) {
-    return this.allMeals()
-      .filter((m) => m.userId === userId)
-      .reduce((s, m) => s + m.points, 0)
+    return this.pointsForMeals(this.allMeals().filter((m) => m.userId === userId))
   }
   async leaderboard(): Promise<LeaderboardEntry[]> {
     await delay(60)
-    const byUser = new Map<string, { points: number; meals: number }>()
+    const mealsByUser = new Map<string, Meal[]>()
     for (const m of this.allMeals()) {
-      const e = byUser.get(m.userId) ?? { points: 0, meals: 0 }
-      e.points += m.points
-      e.meals += 1
-      byUser.set(m.userId, e)
+      const arr = mealsByUser.get(m.userId) ?? []
+      arr.push(m)
+      mealsByUser.set(m.userId, arr)
     }
     return this.allProfiles()
-      .map((profile) => ({
-        profile,
-        points: byUser.get(profile.id)?.points ?? 0,
-        meals: byUser.get(profile.id)?.meals ?? 0,
-      }))
+      .map((profile) => {
+        const meals = mealsByUser.get(profile.id) ?? []
+        return { profile, points: this.pointsForMeals(meals), meals: meals.length }
+      })
       .sort((a, b) => b.points - a.points)
   }
   async teamStandings(): Promise<TeamStanding[]> {
@@ -153,8 +168,10 @@ export class MockProvider implements DataProvider {
     return teams
       .map((team) => {
         const members = profiles.filter((p) => p.teamId === team.id)
-        const memberIds = new Set(members.map((m) => m.id))
-        const points = meals.filter((m) => memberIds.has(m.userId)).reduce((s, m) => s + m.points, 0)
+        const points = members.reduce(
+          (sum, p) => sum + this.pointsForMeals(meals.filter((m) => m.userId === p.id)),
+          0,
+        )
         return { team, points, members: members.length }
       })
       .sort((a, b) => b.points - a.points)
@@ -236,8 +253,7 @@ export class MockProvider implements DataProvider {
     if (existing.length >= 3) throw new Error('MEAL_CAP')
     if (existing.some((m) => m.mealTime === input.mealTime)) throw new Error('SLOT_TAKEN')
 
-    const quest = activeQuest(DAILY_QUESTS)
-    const points = computeMealPoints(input.tier, input.hasPhoto, quest)
+    const points = computeMealPoints(input.tier, input.hasPhoto)
     const meal: Meal = {
       id: `mm${Date.now()}`,
       userId: ME_ID,
@@ -252,6 +268,14 @@ export class MockProvider implements DataProvider {
       co2SavedKg: co2SavedKg(input.tier),
       createdAt: new Date().toISOString(),
     }
+
+    // Daily-quest bonus is per-day and once-only: credit just what this meal
+    // newly completes (e.g. today's "Eat tofu"), never a bonus already banked.
+    const challenge = activeDailyChallenge(new Date(`${input.mealDate}T12:00:00`))
+    const questBefore = dailyQuestBonus(dailyQuestProgress(existing, challenge))
+    const questAfter = dailyQuestBonus(dailyQuestProgress([...existing, meal], challenge))
+    const questGain = questAfter - questBefore
+
     this.p.myMeals.push(meal)
 
     // Update streak.
@@ -270,7 +294,7 @@ export class MockProvider implements DataProvider {
     }
     this.save()
 
-    return { meal, streak, bonus, pointsEarned: points + bonus }
+    return { meal, streak, bonus, pointsEarned: points + questGain + bonus }
   }
 
   /** Edit one of my own meals. Points are recomputed from the new fields. */
@@ -284,7 +308,6 @@ export class MockProvider implements DataProvider {
     if (others.length >= 3) throw new Error('MEAL_CAP')
     if (others.some((m) => m.mealTime === input.mealTime)) throw new Error('SLOT_TAKEN')
 
-    const quest = activeQuest(DAILY_QUESTS)
     const meal: Meal = {
       ...this.p.myMeals[idx],
       tier: input.tier,
@@ -294,7 +317,7 @@ export class MockProvider implements DataProvider {
       photoUrl: input.photoDataUrl,
       questTags: input.questTags ?? [],
       plantProteinGrams: input.plantProteinGrams ?? 0,
-      points: computeMealPoints(input.tier, !!input.photoDataUrl, quest),
+      points: computeMealPoints(input.tier, !!input.photoDataUrl),
       co2SavedKg: co2SavedKg(input.tier),
     }
     this.p.myMeals[idx] = meal

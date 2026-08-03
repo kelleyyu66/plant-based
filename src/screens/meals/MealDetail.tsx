@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { PencilSimple } from '@phosphor-icons/react'
+import { ForkKnife, PencilSimple } from '@phosphor-icons/react'
 import { Avatar } from '@/components/Avatar'
 import { PixelButton } from '@/components/PixelButton'
 import {
@@ -13,6 +13,7 @@ import {
   useToggleReaction,
 } from '@/hooks/useData'
 import { TIER_LABEL, TIME_LABEL } from '@/lib/types'
+import { earnedPointsByMeal } from '@/lib/dailyQuest'
 import { LogMealSheet } from './LogMealSheet'
 
 const REACTION_CHOICES = ['🌱', '🔥', '😋', '👏', '🐄', '💚']
@@ -24,6 +25,7 @@ export function MealDetail() {
   const { data: profiles } = useProfiles()
   const meal = meals?.find((m) => m.id === id)
   const byId = useMemo(() => new Map((profiles ?? []).map((p) => [p.id, p])), [profiles])
+  const earned = useMemo(() => earnedPointsByMeal(meals ?? []), [meals])
 
   const { data: comments } = useComments(id)
   const { data: reactions } = useReactions(id)
@@ -72,8 +74,12 @@ export function MealDetail() {
         <span className="font-mono text-base text-ink">Meal</span>
       </header>
 
-      {meal.photoUrl && (
+      {meal.photoUrl ? (
         <img src={meal.photoUrl} alt="" className="aspect-square w-full border-b border-ink object-cover" />
+      ) : (
+        <div className="grid aspect-square w-full place-items-center border-b border-ink bg-paper-3">
+          <ForkKnife size={44} className="text-ink-faint" aria-hidden />
+        </div>
       )}
 
       <div className="p-5">
@@ -86,7 +92,7 @@ export function MealDetail() {
             <div className="font-mono text-xs text-muted">{meal.mealDate}</div>
           </div>
           <span className="ml-auto rounded-card border border-ink bg-grass-pale px-2 py-0.5 font-mono text-xs text-ink">
-            +{meal.points}
+            +{earned.get(meal.id) ?? meal.points}
           </span>
         </div>
 

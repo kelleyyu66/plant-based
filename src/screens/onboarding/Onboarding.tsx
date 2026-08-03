@@ -5,9 +5,10 @@ import { PixelButton } from '@/components/PixelButton'
 import { Chip } from '@/components/Chip'
 import { H1 } from '@/components/H1'
 import { MeetMooScene } from '@/components/MeetMooScene'
+import { HomeCow } from '@/components/HomeCow'
 import { Sprite } from '@/components/Sprite'
 import { AVATAR_COUNT, animalName } from '@/content/animals'
-import { startingImpact, usAverageImpact } from '@/lib/impact'
+import { MEAT_PROTEIN_LABELS, proteinImpactChart, startingImpact } from '@/lib/impact'
 import { useCompleteOnboarding, useSignUpWithEmail } from '@/hooks/useData'
 
 export function Onboarding() {
@@ -50,7 +51,12 @@ function BasicInfo() {
       }
     >
       <div className="flex flex-col items-center text-center">
-        <H1 className="max-w-[16ch]">Small meals. Big moo-ves.</H1>
+        <H1 className="max-w-[16ch]">
+          Small meals.
+          <br />
+          Big moo-ves.
+        </H1>
+        <HomeCow size={140} className="mt-3" />
         <p className="mt-3 max-w-[34ch] font-mono text-[14px] leading-relaxed text-muted">
           Join the cohort’s 7-day plant-based challenge. Every meal makes your cow a little happier and our shared
           world a little greener.
@@ -106,8 +112,8 @@ function WhyThisMatters() {
         <EcosystemScene />
         <p className="font-mono text-[17px] leading-snug text-ink">Food is ~1/4 of global emissions.</p>
         <p className="font-mono text-[14px] leading-relaxed text-muted">
-          The good news: what’s on your plate is one of the fastest things you can change. Every plant-based meal helps
-          the whole ecosystem — and your cow — thrive.
+          It’s more than all of the transportation sector combined. The good news: what’s on your plate is one of the
+          fastest things you can change. Every plant-based meal makes a huge difference.
         </p>
       </div>
     </OnboardingShell>
@@ -229,19 +235,27 @@ function ClimateFamiliarity() {
 }
 
 // 7 — Your Starting Impact
-function StartingImpact() {
-  const { plantFrequency, next } = useOnboarding()
-  const impact = startingImpact(plantFrequency ?? 'sometimes')
-  const usAvg = usAverageImpact()
+const PLANT_PROTEIN_NAMES = ['Tofu', 'Beans', 'Lentils', 'Nuts']
+const FREQ_PHRASE: Record<string, string> = {
+  sometimes: 'sometimes',
+  often: 'most days',
+  mostly: 'most of the time',
+}
 
-  // Never guilt: a user can land above the average, so the framing has three states.
-  const diffPct = (impact.weeklyLbs - usAvg.weeklyLbs) / usAvg.weeklyLbs
-  const comparison =
-    diffPct < -0.02
-      ? 'You’re already under the US average. Nice start.'
-      : diffPct > 0.02
-        ? 'You’re a bit above the US average — which means you’ve got the most to gain here.'
-        : 'You’re right around the US average.'
+/** A warm, honest opener built from the survey answers. */
+function startingAffirmation(freq: string | null, proteins: string[]): string {
+  if (proteins.some((p) => PLANT_PROTEIN_NAMES.includes(p))) return 'You’re already eating some plant proteins. Nice!'
+  if (freq && FREQ_PHRASE[freq]) return `You’re already eating plant-based ${FREQ_PHRASE[freq]}. Nice!`
+  return 'Small swaps add up fast — let’s find your easy wins.'
+}
+
+function StartingImpact() {
+  const { plantFrequency, proteins, next } = useOnboarding()
+  const chart = proteinImpactChart(proteins)
+  const top = chart[0]
+  const maxKg = top?.footprintKg ?? 1
+  const topIsMeat = top ? MEAT_PROTEIN_LABELS.has(top.label) : false
+  const reductionPct = startingImpact(plantFrequency ?? 'sometimes').swap3ReductionPct
 
   return (
     <OnboardingShell
@@ -252,50 +266,49 @@ function StartingImpact() {
         </PixelButton>
       }
     >
-      <div className="flex flex-col gap-5">
-        <div className="rounded-card border border-ink bg-paper-2 px-6 py-5 text-center">
-          <div className="font-mono text-[34px] leading-none text-ink">{impact.weeklyLbs}</div>
-          <div className="mt-1 font-mono text-[15px] text-muted">lbs CO₂ / week from your meals</div>
-        </div>
+      <div className="flex flex-col gap-6">
+        <p className="font-mono text-[17px] leading-relaxed text-ink">{startingAffirmation(plantFrequency, proteins)}</p>
 
-        <ImpactBars mine={impact.weeklyLbs} avg={usAvg.weeklyLbs} />
-        <p className="font-mono text-[16px] leading-relaxed text-muted">{comparison}</p>
+        {chart.length > 0 && (
+          <div className="rounded-card border border-ink bg-paper-2 p-4">
+            <div className="mb-3 font-mono text-[12px] uppercase tracking-wide text-muted">
+              Your proteins, by climate impact
+            </div>
+            <div
+              className="flex flex-col gap-2"
+              role="img"
+              aria-label={`Relative emissions: ${chart.map((b) => b.label).join(', ')}, highest first`}
+            >
+              {chart.map((b) => {
+                const blocks = Math.max(1, Math.round((b.footprintKg / maxKg) * 10))
+                return (
+                  <div key={b.label} className="flex items-center gap-2 font-mono text-[13px]">
+                    <span className="leading-none tracking-[-0.05em] text-ink" aria-hidden>
+                      {'█'.repeat(blocks)}
+                    </span>
+                    <span className="text-muted">{b.label}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
-        <div className="w-full rounded-card border border-ink bg-grass-pale/60 px-5 py-4">
-          <p className="font-mono text-[16px] text-ink">
-            Swapping just <b>3 meals</b> to plant-based could cut that by about{' '}
-            <b className="font-mono">{impact.swap3ReductionPct}%</b>.
+        {topIsMeat ? (
+          <p className="font-mono text-[15px] leading-relaxed text-muted">
+            Most of your impact comes from {top.label.toLowerCase()}.{' '}
+            <span className="text-ink">
+              Replacing just 3 {top.label.toLowerCase()} meals this week would reduce your food footprint by around{' '}
+              {reductionPct}%.
+            </span>
           </p>
-        </div>
+        ) : (
+          <p className="font-mono text-[15px] leading-relaxed text-muted">
+            You’re already leaning on low-impact proteins — that’s a huge head start. Keep it going all week.
+          </p>
+        )}
       </div>
     </OnboardingShell>
-  )
-}
-
-/** Two pixel bars: you vs the average American. design.md tokens, no chart lib. */
-function ImpactBars({ mine, avg }: { mine: number; avg: number }) {
-  const max = Math.max(mine, avg)
-  const rows = [
-    { label: 'You', value: mine, fill: 'bg-grass-pale' },
-    { label: 'Average American', value: avg, fill: 'bg-ink/25' },
-  ]
-  return (
-    <div className="flex flex-col gap-3" role="img" aria-label={`You ${mine} lbs, average American ${avg} lbs per week`}>
-      {rows.map((r) => (
-        <div key={r.label}>
-          <div className="mb-1 flex items-baseline justify-between">
-            <span className="font-mono text-sm font-medium text-ink">{r.label}</span>
-            <span className="font-mono text-xs text-muted">{r.value} lbs</span>
-          </div>
-          <div className="h-6 w-full rounded-card border border-ink bg-paper-2">
-            <div
-              className={`h-full ${r.fill}`}
-              style={{ width: `${Math.max(4, Math.round((r.value / max) * 100))}%` }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
   )
 }
 

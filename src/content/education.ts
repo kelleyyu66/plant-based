@@ -65,26 +65,43 @@ export const TRADER_JOES_PICKS: TjPick[] = [
   { item: 'Banana Almond Non-Dairy Frozen Dessert', note: 'Two ingredients, weirdly good.' },
 ]
 
-export interface GuideTip {
-  title: string
-  body: string
+export interface DailyTip {
+  day: number
+  tips: string[]
 }
 
-export const BEGINNER_GUIDE: GuideTip[] = [
+// One or two short tips per day, easing from "just start" into technique as the
+// week goes on. Kept punchy on purpose — a cookbook you actually read.
+export const DAILY_TIPS: DailyTip[] = [
+  { day: 1, tips: ['You don’t have to go all-in. Swapping one meal a day already makes a real dent.'] },
+  { day: 2, tips: ['Aim for a palm-sized protein each meal: tofu, lentils, chickpeas, or edamame.'] },
   {
-    title: 'You don’t have to go all-in',
-    body: 'Swapping even one meal a day makes a real dent. Moo counts every step — beef days included.',
+    day: 3,
+    tips: [
+      'Plants love salt, acid, and fat — soy sauce, lemon, and a little oil go a long way.',
+      'Firmer (high-protein) tofu packs more protein and crisps up better.',
+    ],
+  },
+  { day: 4, tips: ['Stock a lazy shelf: canned beans, frozen edamame, pre-cooked lentils, a jar of curry sauce.'] },
+  {
+    day: 5,
+    tips: [
+      'Eating all your leftovers is one of the easiest ways to fight climate change.',
+      'Press tofu 10 minutes before cooking for a chewier, less watery bite.',
+    ],
   },
   {
-    title: 'Getting enough protein',
-    body: 'Aim for a palm-sized protein at each meal: tofu, tempeh, lentils, chickpeas, edamame, or a scoop of pea protein. Variety covers all your amino acids.',
+    day: 6,
+    tips: [
+      'Blend soaked cashews or silken tofu for creamy, dairy-free sauces.',
+      'Batch-cook a pot of beans or lentils to carry three meals.',
+    ],
   },
   {
-    title: 'Make it taste like something',
-    body: 'Plants love salt, acid, and fat. Soy sauce, lemon, and a drizzle of oil turn "healthy" into "actually crave this."',
-  },
-  {
-    title: 'Stock a lazy shelf',
-    body: 'Canned beans, frozen edamame, pre-cooked lentils, and a jar of curry sauce = dinner in 10 minutes on a tired day.',
+    day: 7,
+    tips: [
+      'Build a bowl: grain + bean + roasted veg + a punchy sauce. Endlessly remixable.',
+      'A spoon of nutritional yeast adds a savory, cheesy hit to almost anything.',
+    ],
   },
 ]

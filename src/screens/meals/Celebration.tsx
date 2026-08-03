@@ -1,10 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { CelebrationCow } from '@/components/CelebrationCow'
 import { H1 } from '@/components/H1'
 import { PixelButton } from '@/components/PixelButton'
 import { Confetti } from '@/components/Confetti'
-import { activeFact } from '@/lib/quests'
+import { randomFact } from '@/lib/quests'
 import { DAILY_FACTS } from '@/content/seed'
 import { playReward } from '@/lib/sound'
 import { cowMessage } from '@/content/cowMessages'
@@ -17,7 +17,8 @@ interface CelebrationProps {
 
 /** Full-screen "Nice one!" overlay after logging. Old-app parity + pixel restyle. */
 export function Celebration({ result, onDone }: CelebrationProps) {
-  const fact = activeFact(DAILY_FACTS)
+  // Pick once per mount — a fresh random fact for every meal logged.
+  const [fact] = useState(() => randomFact(DAILY_FACTS))
   const { pointsEarned, meal, bonus, streak } = result
 
   // The one reward sound, on the app's biggest positive moment.
