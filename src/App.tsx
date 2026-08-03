@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { MooCow } from './components/MooCow'
 import { useMyProfile } from './hooks/useData'
 import { KitchenSink } from './screens/KitchenSink'
+import { Splash } from './screens/onboarding/Splash'
 import { Onboarding } from './screens/onboarding/Onboarding'
 import { Home } from './screens/home/Home'
 import { Meals } from './screens/meals/Meals'
@@ -12,7 +14,8 @@ import { Profile } from './screens/profile/Profile'
 import { PersonProfile } from './screens/profile/PersonProfile'
 import { Education } from './screens/education/Education'
 
-function Splash() {
+/** Brief hold while the profile loads. Not the branded splash. */
+function LoadingScreen() {
   return (
     <div className="grid min-h-screen w-full max-w-phone place-items-center bg-paper">
       <MooCow mood="idle" scale={9} />
@@ -23,7 +26,17 @@ function Splash() {
 export function App() {
   const { data: profile, isLoading } = useMyProfile()
 
-  if (isLoading) return <Splash />
+  /**
+   * Prototype behaviour: the splash opens EVERY launch, for onboarded users too.
+   *
+   * Deliberately React state rather than localStorage — persisting it would show
+   * the splash exactly once per browser and never again, which is the opposite of
+   * what a demo needs. A refresh is a fresh launch.
+   */
+  const [splashDone, setSplashDone] = useState(false)
+  if (!splashDone) return <Splash onStart={() => setSplashDone(true)} />
+
+  if (isLoading) return <LoadingScreen />
 
   const onboarded = !!profile
 

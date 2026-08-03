@@ -26,7 +26,7 @@ export function PastureItem({
   const k = fit ? Math.min(fit / def.w, fit / def.h) : 1
   const w = Math.round(def.w * k)
   const h = Math.round(def.h * k)
-  const S = { stroke: '#1C1B19', strokeWidth: 1.6, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
+  const S = { stroke: '#2E2F2C', strokeWidth: 1.6, fill: 'none', strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const }
   const ACCENT = '#5C7A45'
 
   return (
@@ -49,7 +49,7 @@ export function PastureItem({
         <>
           <path d="M12 30 C8 22 14 14 21 15 C25 9 32 12 31 18 L34 20 L31 22 C33 30 26 34 19 33 Z" {...S} />
           <path d="M16 33 L15 37 M25 33 L26 37" {...S} />
-          <circle cx="27" cy="18" r="1" fill="#1C1B19" />
+          <circle cx="27" cy="18" r="1" fill="#2E2F2C" />
         </>
       )}
       {id === 'pond' && (
@@ -62,7 +62,7 @@ export function PastureItem({
         <>
           <path d="M10 28 C8 20 16 15 22 18 C22 11 32 11 31 18 L35 20 L31 22 C33 29 24 34 16 32 Z" {...S} />
           <path d="M8 32 q14 5 24 0" {...S} />
-          <circle cx="27" cy="18" r="1" fill="#1C1B19" />
+          <circle cx="27" cy="18" r="1" fill="#2E2F2C" />
         </>
       )}
       {id === 'haystack' && (

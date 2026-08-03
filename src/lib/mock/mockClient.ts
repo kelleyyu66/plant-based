@@ -84,6 +84,7 @@ export class MockProvider implements DataProvider {
     const me: Profile = {
       id: ME_ID,
       displayName: input.displayName,
+      email: input.email ?? this.p.pendingEmail ?? null,
       cowName: input.cowName,
       avatarIndex: input.avatarIndex,
       teamId: input.teamId,

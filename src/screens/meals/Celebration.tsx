@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MooCow } from '@/components/MooCow'
+import { CelebrationCow } from '@/components/CelebrationCow'
+import { H1 } from '@/components/H1'
 import { PixelButton } from '@/components/PixelButton'
 import { Confetti } from '@/components/Confetti'
 import { activeFact } from '@/lib/quests'
@@ -30,17 +31,19 @@ export function Celebration({ result, onDone }: CelebrationProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <Confetti fire />
-      <div className="flex w-full items-center justify-between">
-        <span className="font-mono text-lg text-ink">Nice one!</span>
+      {/* Confetti rides above the page content; the did-you-know box sits above it. */}
+      <Confetti fire className="z-10" />
+      <div className="flex w-full justify-end">
         <button onClick={onDone} aria-label="Close" className="text-2xl text-muted">
           ✕
         </button>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+        <H1 className="text-center">Nice one!</H1>
+        {/* gap-4 + mt-4 = the designed 32px between the title and the points. */}
         <motion.div
-          className="font-mono text-[34px] text-ink"
+          className="mt-4 font-mono text-[34px] text-ink"
           initial={{ scale: 0.5, y: 10 }}
           animate={{ scale: 1, y: 0 }}
           transition={{ type: 'spring', stiffness: 260, damping: 14 }}
@@ -50,7 +53,7 @@ export function Celebration({ result, onDone }: CelebrationProps) {
         <p className="max-w-[26ch] font-mono text-[13px] text-muted">
           {cowMessage('meal_logged', { points: pointsEarned }, pointsEarned)}
         </p>
-        <MooCow mood="dance" scale={12} />
+        <CelebrationCow size={220} />
         {bonus > 0 && (
           <div className="rounded-card border border-ink bg-grass-pale px-4 py-2 font-mono text-sm">
             Streak goal hit — {streak.current} days! +{bonus} bonus.
@@ -64,9 +67,10 @@ export function Celebration({ result, onDone }: CelebrationProps) {
       </div>
 
       {fact && (
-        <div className="w-full">
-          <h3 className="mb-1 font-mono text-sm text-ink">Did you know?</h3>
-          <p className="font-mono text-[15px] leading-snug text-ink/90">{fact.body}</p>
+        <div className="relative z-20 w-full rounded-card border border-ink bg-paper-2 px-4 py-3">
+          {/* Same size as the "Add a meal" sheet title. */}
+          <h3 className="mb-1 font-hand text-[28px] text-ink">Did you know?</h3>
+          <p className="font-mono text-[13px] leading-snug text-ink/90">{fact.body}</p>
           {fact.sourceUrl && (
             <a
               href={fact.sourceUrl}

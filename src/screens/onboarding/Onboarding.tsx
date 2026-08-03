@@ -3,22 +3,20 @@ import { OnboardingShell } from './OnboardingShell'
 import { deriveStartingDiet, useOnboarding } from './onboardingStore'
 import { PixelButton } from '@/components/PixelButton'
 import { Chip } from '@/components/Chip'
-import { MooCow } from '@/components/MooCow'
-import { CowStage } from '@/components/CowStage'
 import { H1 } from '@/components/H1'
+import { MeetMooScene } from '@/components/MeetMooScene'
 import { Sprite } from '@/components/Sprite'
-import { Avatar } from '@/components/Avatar'
 import { AVATAR_COUNT, animalName } from '@/content/animals'
 import { startingImpact, usAverageImpact } from '@/lib/impact'
 import { useCompleteOnboarding } from '@/hooks/useData'
 
 export function Onboarding() {
   const s = useOnboarding()
+
   switch (s.step) {
-    // Experiment: identity first (pick a critter), then basic info, then the
-    // eating questionnaire. Reordered from the original info-first flow.
-    case 1: return <PickCritter />
-    case 2: return <BasicInfo />
+    // Name/email first, then pick a critter, then the eating questionnaire.
+    case 1: return <BasicInfo />
+    case 2: return <PickCritter />
     case 3: return <WhyThisMatters />
     case 4: return <PlantFrequency />
     case 5: return <Proteins />
@@ -43,10 +41,7 @@ function BasicInfo() {
       }
     >
       <div className="flex flex-col items-center text-center">
-        <div className="-mx-6 w-[calc(100%+3rem)]">
-          <CowStage mood="idle" />
-        </div>
-        <H1 className="mt-5 max-w-[16ch]">Small meals. Big moo-ves.</H1>
+        <H1 className="max-w-[16ch]">Small meals. Big moo-ves.</H1>
         <p className="mt-3 max-w-[34ch] font-mono text-[14px] leading-relaxed text-muted">
           Join the cohort’s 7-day plant-based challenge. Every meal makes your cow a little happier and our shared
           world a little greener.
@@ -105,12 +100,15 @@ function WhyThisMatters() {
   )
 }
 
+/** Hand-drawn cow at the dinner table. */
 function EcosystemScene() {
   return (
-    <div className="relative w-full overflow-hidden rounded-card border border-ink bg-paper-2">
-      <span className="absolute right-6 top-5 h-9 w-9 rounded-full border border-ink" aria-hidden />
-      <CowStage mood="idle" className="!h-[150px]" />
-    </div>
+    <img
+      src="/onboarding/cow-eating.png"
+      alt="Moo the cow sitting down to a plate of vegetables"
+      className="mx-auto w-[min(78%,300px)] object-contain"
+      draggable={false}
+    />
   )
 }
 
@@ -294,14 +292,14 @@ function PickCritter() {
     <OnboardingShell
       tone="field"
       title="Pick your critter"
-      subtitle="This is you on the leaderboard. (Placeholders for now.)"
+      subtitle="This is you on the leaderboard and in the menu bar."
       footer={
         <PixelButton full disabled={avatarIndex === null} onClick={next}>
           Continue
         </PixelButton>
       }
     >
-      <div className="grid grid-cols-4 gap-2.5">
+      <div className="grid grid-cols-4 gap-2">
         {Array.from({ length: AVATAR_COUNT }).map((_, i) => (
           <button
             key={i}
@@ -311,7 +309,7 @@ function PickCritter() {
               avatarIndex === i ? 'border-ink bg-grass-pale' : 'border-ink/30 bg-paper-2'
             }`}
           >
-            <Sprite index={i} size={34} />
+            <Sprite index={i} size={44} />
             <span className="w-full truncate text-center font-mono text-[9px] leading-none text-muted">
               {animalName(i)}
             </span>
@@ -332,6 +330,7 @@ function MeetYourCow() {
   const start = async () => {
     await complete.mutateAsync({
       displayName: s.name.trim() || s.email.split('@')[0] || 'Cohort Cow',
+      email: s.email.trim() || null,
       cowName: null, // the cow is just Moo
       avatarIndex: avatar,
       teamId: null,
@@ -356,16 +355,12 @@ function MeetYourCow() {
         </PixelButton>
       }
     >
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="grid h-44 w-full place-items-center rounded-card border border-ink bg-gradient-to-b from-grass-300 to-grass-500">
-          <MooCow mood="idle" scale={10} />
-        </div>
-        <div className="flex items-center gap-3 rounded-card border border-ink bg-paper-2 px-4 py-3">
-          <Avatar index={avatar} size="md" />
-          <p className="text-left font-mono text-[15px] leading-relaxed text-muted">
-            This is Moo. Every plant-based meal you log keeps Moo happy — and the planet a little greener all week.
-          </p>
-        </div>
+      <div className="flex flex-col items-center gap-5 text-center">
+        {/* Sits straight on the canvas — no frame, no backdrop. */}
+        <MeetMooScene size={320} />
+        <p className="max-w-[34ch] font-mono text-[15px] leading-relaxed text-muted">
+          This is Moo. Every plant-based meal you log keeps Moo happy — and the planet a little greener all week.
+        </p>
       </div>
     </OnboardingShell>
   )

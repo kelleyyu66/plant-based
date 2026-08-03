@@ -38,7 +38,12 @@ export default defineConfig({
       },
     }),
   ],
-  server: { port: 5180, strictPort: true },
+  // host: true binds to all interfaces so the dev server is reachable from a
+  // phone on the same Wi-Fi (http://<your-lan-ip>:5180) — the only practical way
+  // to test touch drag on real iOS/Android.
+  // PORT override lets a second dev server (e.g. another Claude session) run
+  // alongside the default one without fighting over 5180.
+  server: { port: Number(process.env.PORT) || 5180, strictPort: true, host: true },
   resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
   test: {
     globals: true,

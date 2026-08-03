@@ -29,7 +29,7 @@ body,
 body {
   margin: 0;
   font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
-  color: #1c1b19;
+  color: #2e2f2c;
   background: #efeee9; /* gutter behind the phone column */
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
@@ -50,7 +50,7 @@ body {
 /* One hairline stroke, used by every container. Kept as a class so the whole
    app can move to hand-drawn SVG borders in one edit later. */
 .stroke-hair {
-  border: 1px solid #1c1b19;
+  border: 1px solid #2e2f2c;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -70,4 +70,24 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Clouds crossing the sky. Translated in percentages of the cloud's own width so
+   it fully clears both edges regardless of which cloud image is used. */
+@keyframes drift {
+  from { transform: translateX(-120%); }
+  to   { transform: translateX(calc(100vw + 20%)); }
+}
+
+/* Windmill spokes. One turn = 5s, set per-element. */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Sleep "z" — fades up and away. */
+@keyframes zfloat {
+  0%   { opacity: 0; transform: translate(0, 4px) scale(0.8); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(10px, -18px) scale(1.1); }
 }

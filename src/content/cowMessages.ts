@@ -15,6 +15,7 @@ export type CowTrigger =
   | 'afternoon'
   | 'evening'
   | 'late_no_dinner'
+  | 'hungry'
   | 'meal_logged'
   | 'quest_done'
   | 'item_unlocked'
@@ -44,6 +45,11 @@ const TEMPLATES: Record<CowTrigger, string[]> = {
     'Evening! How did today’s meals go?',
     'Good evening. Don’t forget to log dinner.',
     'Winding down? Log what you ate today.',
+  ],
+  hungry: [
+    'Moo is hungry — log your food to feed Moo!',
+    'Moo’s tummy is rumbling. Log a meal to feed her!',
+    'Nothing logged yet today — feed Moo by logging your food.',
   ],
   late_no_dinner: [
     'It’s past dinner time. Have you eaten yet? Log your meal.',

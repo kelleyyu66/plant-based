@@ -18,9 +18,9 @@ export default {
         paper: { DEFAULT: '#FAF9F5', 2: '#FFFFFF', 3: '#F2F1EB' },
         // Cow-spot black: dark, deliberately not pure #000.
         // ALL text, icons and outlines use this. design: one ink, no exceptions.
-        ink: { DEFAULT: '#1C1B19', soft: '#6B6A64', faint: '#C9C7BF' },
+        ink: { DEFAULT: '#2E2F2C', soft: '#6B6A64', faint: '#C9C7BF' },
         // `deep` is an alias of ink so existing text-deep markup stays correct.
-        deep: { DEFAULT: '#1C1B19', soft: '#6B6A64', faint: '#C9C7BF' },
+        deep: { DEFAULT: '#2E2F2C', soft: '#6B6A64', faint: '#C9C7BF' },
         // The one permitted light tone: secondary copy ("Get more information").
         muted: '#8A8A82',
         // THE ONLY COLOR IN THE APP — progress fill + accent marks.

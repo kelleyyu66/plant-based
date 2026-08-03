@@ -50,7 +50,7 @@ export const useOnboarding = create<OnboardingState>()(
       goto: (step) => set({ step }),
       reset: () =>
         set({
-          step: 1,
+              step: 1,
           name: '',
           email: '',
           plantFrequency: null,
@@ -63,7 +63,7 @@ export const useOnboarding = create<OnboardingState>()(
         }),
     }),
     // v3: dropped streak-goal + team steps; flow is 8 steps.
-    { name: 'moo.onboarding.v3' },
+    { name: 'moo.onboarding.v4' },
   ),
 )
 

@@ -42,6 +42,8 @@ export interface OnboardingAnswers {
 export interface Profile {
   id: string
   displayName: string
+  /** Sign-up email. Optional: mock fixtures predate this field. */
+  email?: string | null
   /** What the user named their own cow. null = fall back to the mascot name "Moo". */
   cowName: string | null
   avatarIndex: number

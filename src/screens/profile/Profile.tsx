@@ -1,14 +1,12 @@
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Avatar } from '@/components/Avatar'
+import { useNavigate } from 'react-router-dom'
 import { MealCard } from '@/components/MealCard'
+import { Sprite } from '@/components/Sprite'
 import { EmptyState } from '@/components/EmptyState'
 import { PixelButton } from '@/components/PixelButton'
 import { H1 } from '@/components/H1'
-import { Pasture } from '@/components/Pasture'
 import { AboutYou } from './AboutYou'
 import { NotificationBell } from '@/components/Notifications'
 import { useAppNotifications } from '@/hooks/useAppNotifications'
-import { unlockedCount } from '@/lib/pasture'
 import { useMyProfile, useUserMeals, useUserPoints } from '@/hooks/useData'
 import { data } from '@/lib/dataProvider'
 import { INDIVIDUAL_POINTS_GOAL } from '@/content/seed'
@@ -20,10 +18,6 @@ export function Profile() {
   const { data: meals } = useUserMeals('me')
   const { data: points = 0 } = useUserPoints('me')
   const notifications = useAppNotifications()
-  const unlocked = unlockedCount(meals ?? [])
-  // Deep link from the "new item unlocked" notification: ?highlight=<itemId>
-  const [params] = useSearchParams()
-  const highlight = params.get('highlight')
 
   if (!profile) return null
 
@@ -39,11 +33,12 @@ export function Profile() {
         <NotificationBell items={notifications.items} dismiss={notifications.dismiss} clearAll={notifications.clearAll} />
       </header>
 
-      {/* Identity */}
-      <div className="flex items-center gap-4 px-6 py-5">
-        <Avatar index={profile.avatarIndex} size="lg" />
-        <div>
+      {/* Identity — the standing critter (no circle crop), details stacked. */}
+      <div className="flex flex-col items-center gap-2 px-6 py-5 text-center">
+        <Sprite index={profile.avatarIndex} size={96} />
+        <div className="flex flex-col">
           <div className="font-mono text-[17px] text-ink">{profile.displayName}</div>
+          {profile.email && <div className="font-mono text-[12px] text-muted">{profile.email}</div>}
           <div className="font-mono text-[12px] text-muted">Cohort challenger</div>
         </div>
       </div>
@@ -54,12 +49,6 @@ export function Profile() {
         <Stat value={`${profile.streakCurrent}`} label="streak" />
         <Stat value={`${meals?.length ?? 0}`} label="meals" />
       </div>
-
-      {/* Pasture — one item unlocks per day logged; drag to arrange. */}
-      <section id="pasture" className="mx-6 mt-6 scroll-mt-4">
-        <h2 className="mb-2 font-mono text-[15px] text-ink">Your pasture</h2>
-        <Pasture unlocked={unlocked} highlight={highlight} />
-      </section>
 
       {/* Editable so a wrong tap during onboarding isn't permanent. */}
       <AboutYou profile={profile} />
