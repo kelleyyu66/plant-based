@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useDailyQuestProgress, useUserMeals } from './useData'
-import { itemForDay, unlockedCount } from '@/lib/pasture'
+import { challengeDayCount, latestUnlock } from '@/lib/scene'
 import { loadReadIds, markAllRead, markRead } from '@/lib/notificationState'
 
 export interface AppNotification {
@@ -24,15 +24,15 @@ export function useAppNotifications() {
   const all = useMemo(() => {
     const out: AppNotification[] = []
 
-    const unlocked = unlockedCount(meals ?? [])
-    const latest = itemForDay(unlocked)
+    const days = challengeDayCount(meals ?? [])
+    const latest = latestUnlock(meals ?? [])
     if (latest) {
       out.push({
-        id: `unlock-${unlocked}`,
+        id: `unlock-${days}`,
         title: `New item unlocked: ${latest.name}`,
         body: `Tap to place your ${latest.name.toLowerCase()} in the pasture.`,
-        // Deep link straight to the pasture, highlighting the new item.
-        href: `/profile?highlight=${encodeURIComponent(latest.id)}#pasture`,
+        // Deep link to Home and pop the "unlock elements daily" tray open.
+        href: '/home?openTray=1',
       })
     }
 

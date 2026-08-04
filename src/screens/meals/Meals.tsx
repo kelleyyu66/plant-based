@@ -71,11 +71,11 @@ export function Meals() {
     [dayMeals],
   )
 
-  // Meals for the selected day, filtered by slot only when one is chosen.
-  // Unfiltered, they read top-to-bottom as breakfast → lunch → dinner.
+  // Meals for the selected day, filtered by slot only when one is chosen,
+  // most recently logged first.
   const visible = useMemo(() => {
     const list = slot ? dayMeals.filter((m) => m.mealTime === slot) : dayMeals
-    return [...list].sort((a, b) => MEAL_TIMES.indexOf(a.mealTime) - MEAL_TIMES.indexOf(b.mealTime))
+    return [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
   }, [dayMeals, slot])
 
   return (
@@ -117,7 +117,7 @@ export function Meals() {
           {day && <p className="px-6 pt-2 font-mono text-[12px] text-muted">{shortDate(day)}</p>}
 
           {/* Layer 2 — optional breakfast / lunch / dinner filter. Tapping a slot
-              filters to it; tapping it again (or Clear) shows every meal. */}
+              filters to it; tapping it again shows every meal. */}
           <div className="mt-3 flex items-stretch gap-2 px-6">
             {MEAL_TIMES.map((t) => {
               const active = t === slot
@@ -135,13 +135,6 @@ export function Meals() {
                 </button>
               )
             })}
-            <button
-              onClick={() => setSlot(null)}
-              disabled={slot === null}
-              className="shrink-0 rounded-card border border-ink/35 px-3 py-2.5 font-mono text-[13px] text-muted transition-transform active:scale-95 disabled:opacity-40"
-            >
-              Clear
-            </button>
           </div>
 
           {visible.length > 0 ? (

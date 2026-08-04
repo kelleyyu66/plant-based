@@ -19,6 +19,9 @@ import { impactEquivalents } from '@/lib/impact'
 import { cowMessage, greetingTrigger } from '@/content/cowMessages'
 import { cowNameOr } from '@/content/cowNames'
 import { useUserMeals } from '@/hooks/useData'
+import { DAILY_TIPS } from '@/content/education'
+import { challengeDay, toCohortDate } from '@/lib/dates'
+import { CHALLENGE_START_DATE } from '@/content/seed'
 
 export function Home() {
   const nav = useNavigate()
@@ -69,6 +72,11 @@ export function Home() {
 
   const firstName = (profile?.displayName ?? 'friend').trim().split(/\s+/)[0]
 
+  // Same tip rotation as Moo's cookbook: keyed off the challenge day, wraps after day 7.
+  const today = toCohortDate()
+  const start = CHALLENGE_START_DATE ?? today
+  const todaysTips = DAILY_TIPS[(challengeDay(today, start) - 1) % DAILY_TIPS.length]?.tips ?? []
+
   return (
     <div className="min-h-full bg-paper pb-52">
       {/* Greeting + running points + notifications */}
@@ -95,6 +103,20 @@ export function Home() {
         <section className="px-6 pt-7">
           <h2 className="mb-2.5 font-mono text-[15px] text-ink">Today’s quest</h2>
           <QuestList progress={dailyQuest} />
+        </section>
+      )}
+
+      {/* Tip of the day — moved here from Moo's little cookbook. */}
+      {todaysTips.length > 0 && (
+        <section className="px-6 pt-7">
+          <h2 className="mb-2.5 font-mono text-[15px] text-ink">Tip of the day</h2>
+          <div className="space-y-3">
+            {todaysTips.map((tip) => (
+              <div key={tip} className="rounded-card border border-ink bg-paper-2 p-3">
+                <p className="font-mono text-sm text-muted">{tip}</p>
+              </div>
+            ))}
+          </div>
         </section>
       )}
 

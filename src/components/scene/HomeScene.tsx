@@ -76,6 +76,18 @@ export function HomeScene({ meals, says }: Props) {
   const pose = cowPose(hour)
   const asleep = isNight(hour)
 
+  // Deep link from the "New item unlocked" notification: `?openTray=1` pops
+  // the tray open once, then the param is stripped so a refresh doesn't redo it.
+  useEffect(() => {
+    if (typeof location === 'undefined') return
+    const params = new URLSearchParams(location.search)
+    if (!params.get('openTray')) return
+    setTrayOpen(true)
+    params.delete('openTray')
+    const qs = params.toString()
+    window.history.replaceState(null, '', location.pathname + (qs ? `?${qs}` : ''))
+  }, [])
+
   // Everything scales off the rendered width against the design canvas.
   const [width, setWidth] = useState(SCENE_W)
   useLayoutEffect(() => {

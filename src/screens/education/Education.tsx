@@ -1,15 +1,9 @@
 import { MapPin } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router-dom'
-import { DAILY_TIPS, PROTEINS, RESTAURANTS, TRADER_JOES_PICKS, YOUTUBE_CHANNELS } from '@/content/education'
-import { challengeDay, toCohortDate } from '@/lib/dates'
-import { CHALLENGE_START_DATE } from '@/content/seed'
+import { PROTEINS, RESTAURANTS, TRADER_JOES_PICKS, YOUTUBE_CHANNELS } from '@/content/education'
 
 export function Education() {
   const nav = useNavigate()
-  // Only today's tip(s), rotating with the challenge day (wraps after day 7).
-  const today = toCohortDate()
-  const start = CHALLENGE_START_DATE ?? today
-  const todaysTips = DAILY_TIPS[(challengeDay(today, start) - 1) % DAILY_TIPS.length]?.tips ?? []
   return (
     <div className="min-h-full bg-paper pb-28">
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-ink bg-paper-2 px-4 py-3">
@@ -18,17 +12,6 @@ export function Education() {
         </button>
         <span className="font-mono text-base text-ink">Moo’s little cookbook</span>
       </header>
-
-      {/* Just today's tip(s) — one per box; a two-tip day shows two boxes. */}
-      <Section title="Tip of the day">
-        <div className="space-y-3">
-          {todaysTips.map((tip) => (
-            <div key={tip} className="rounded-card border border-ink bg-paper-2 p-3">
-              <p className="font-mono text-sm text-muted">{tip}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
 
       {/* Protein table */}
       <Section title="Where to get your protein">
