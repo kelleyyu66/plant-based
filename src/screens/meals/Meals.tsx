@@ -5,9 +5,10 @@ import { EmptyState } from '@/components/EmptyState'
 import { H1 } from '@/components/H1'
 import { NotificationBell } from '@/components/Notifications'
 import { useAppNotifications } from '@/hooks/useAppNotifications'
-import { useMeals, useMyProfile, useProfiles } from '@/hooks/useData'
+import { useAllComments, useMeals, useMyProfile, useProfiles } from '@/hooks/useData'
 import { challengeDay, shortDate, toCohortDate } from '@/lib/dates'
 import { earnedPointsByMeal } from '@/lib/dailyQuest'
+import { commentCountsByMeal } from '@/lib/comments'
 import { cowNameOr } from '@/content/cowNames'
 import { CHALLENGE_START_DATE } from '@/content/seed'
 import { MEAL_TIMES, TIME_LABEL, type MealTime } from '@/lib/types'
@@ -26,11 +27,13 @@ export function Meals() {
   const { data: meals, isLoading } = useMeals()
   const { data: profiles } = useProfiles()
   const { data: myProfile } = useMyProfile()
+  const { data: allComments } = useAllComments()
 
   const byId = useMemo(() => new Map((profiles ?? []).map((p) => [p.id, p])), [profiles])
 
   // Badge points include each meal's share of the day's quest bonuses.
   const earned = useMemo(() => earnedPointsByMeal(meals ?? []), [meals])
+  const commentCounts = useMemo(() => commentCountsByMeal(allComments ?? []), [allComments])
 
   // Day 1 is the cohort start when known, else the earliest meal on record.
   const startDate = useMemo(() => {
@@ -145,6 +148,7 @@ export function Meals() {
                   meal={m}
                   author={byId.get(m.userId)}
                   points={earned.get(m.id)}
+                  commentCount={commentCounts.get(m.id)}
                   onClick={() => nav(`/meals/${m.id}`)}
                 />
               ))}

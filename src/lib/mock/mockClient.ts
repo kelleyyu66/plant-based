@@ -210,6 +210,10 @@ export class MockProvider implements DataProvider {
       .filter((c) => c.mealId === mealId)
       .sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1))
   }
+  async listAllComments() {
+    await delay(30)
+    return [...this.allComments()].sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1))
+  }
   async addComment(mealId: string, body: string): Promise<Comment> {
     if (!this.p.me) throw new Error('not onboarded')
     const c: Comment = {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ForkKnife } from '@phosphor-icons/react'
+import { ChatCircle, ForkKnife } from '@phosphor-icons/react'
 import type { Meal, Profile } from '@/lib/types'
 import { TIER_LABEL, TIME_LABEL } from '@/lib/types'
 
@@ -9,6 +9,8 @@ interface MealCardProps {
   /** Points to show. Defaults to the meal's base; pass the quest-bonus-inclusive
    *  amount (earnedPointsByMeal) so the badge matches what was banked. */
   points?: number
+  /** Comments logged on this meal. Omit or 0 hides the badge entirely. */
+  commentCount?: number
   onClick?: () => void
 }
 
@@ -16,7 +18,7 @@ interface MealCardProps {
  * A meal in the 2-col feed. Photos sit in the same hairline-stroked frame as
  * every other container; photoless meals fall back to a neutral placeholder.
  */
-export function MealCard({ meal, author, points, onClick }: MealCardProps) {
+export function MealCard({ meal, author, points, commentCount, onClick }: MealCardProps) {
   const [imgOk, setImgOk] = useState(true)
   const showImg = meal.photoUrl && imgOk
 
@@ -44,7 +46,15 @@ export function MealCard({ meal, author, points, onClick }: MealCardProps) {
         </span>
       </div>
       <div className="p-2.5">
-        <div className="truncate font-mono text-[12px] text-muted">{author?.displayName ?? 'Someone'}</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="truncate font-mono text-[12px] text-muted">{author?.displayName ?? 'Someone'}</div>
+          {!!commentCount && (
+            <span className="flex shrink-0 items-center gap-1 font-mono text-[12px] text-muted">
+              <ChatCircle size={13} aria-hidden />
+              {commentCount}
+            </span>
+          )}
+        </div>
         <div className="font-mono text-[14px] text-ink">
           {TIER_LABEL[meal.tier]} · {TIME_LABEL[meal.mealTime]}
         </div>

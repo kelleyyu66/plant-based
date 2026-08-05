@@ -1,8 +1,10 @@
+import { useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Avatar } from '@/components/Avatar'
 import { MealCard } from '@/components/MealCard'
 import { EmptyState } from '@/components/EmptyState'
-import { useProfile, useUserMeals, useUserPoints } from '@/hooks/useData'
+import { useAllComments, useProfile, useUserMeals, useUserPoints } from '@/hooks/useData'
+import { commentCountsByMeal } from '@/lib/comments'
 
 /** Read-only profile of any cohort member: header + their meal grid. */
 export function PersonProfile() {
@@ -11,6 +13,8 @@ export function PersonProfile() {
   const { data: profile, isLoading } = useProfile(id)
   const { data: meals } = useUserMeals(id)
   const { data: points = 0 } = useUserPoints(id)
+  const { data: allComments } = useAllComments()
+  const commentCounts = useMemo(() => commentCountsByMeal(allComments ?? []), [allComments])
 
   if (isLoading) return <div className="min-h-full bg-paper p-6 font-mono text-muted">Loading…</div>
   if (!profile)
@@ -43,7 +47,13 @@ export function PersonProfile() {
       {meals && meals.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 px-4">
           {meals.map((m) => (
-            <MealCard key={m.id} meal={m} author={profile} onClick={() => nav(`/meals/${m.id}`)} />
+            <MealCard
+              key={m.id}
+              meal={m}
+              author={profile}
+              commentCount={commentCounts.get(m.id)}
+              onClick={() => nav(`/meals/${m.id}`)}
+            />
           ))}
         </div>
       ) : (

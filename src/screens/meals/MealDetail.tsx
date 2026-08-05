@@ -16,7 +16,7 @@ import { TIER_LABEL, TIME_LABEL } from '@/lib/types'
 import { earnedPointsByMeal } from '@/lib/dailyQuest'
 import { LogMealSheet } from './LogMealSheet'
 
-const REACTION_CHOICES = ['🌱', '🔥', '😋', '👏', '🐄', '💚']
+const REACTION_CHOICES = ['💚', '🔥', '🤤', '😂', '😢']
 
 export function MealDetail() {
   const { id = '' } = useParams()
@@ -84,7 +84,15 @@ export function MealDetail() {
 
       <div className="p-5">
         <div className="flex items-center gap-3">
-          {author && <Avatar index={author.avatarIndex} size="sm" />}
+          {author && (
+            <button
+              onClick={() => nav(`/profile/${author.id}`)}
+              aria-label={`See ${author.displayName}’s meals`}
+              className="shrink-0 transition-transform active:scale-95"
+            >
+              <Avatar index={author.avatarIndex} size="sm" />
+            </button>
+          )}
           <div>
             <div className="font-mono text-xs font-medium uppercase tracking-wide text-muted">
               {author?.displayName ?? 'Someone'}

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useDailyQuestProgress, useUserMeals } from './useData'
+import { useAllComments, useDailyQuestProgress, useMeals, useMyProfile, useProfiles, useUserMeals } from './useData'
 import { challengeDayCount, latestUnlock } from '@/lib/scene'
 import { loadReadIds, markAllRead, markRead } from '@/lib/notificationState'
 
@@ -19,6 +19,10 @@ export interface AppNotification {
 export function useAppNotifications() {
   const { data: meals } = useUserMeals('me')
   const { data: quest } = useDailyQuestProgress()
+  const { data: me } = useMyProfile()
+  const { data: allMeals } = useMeals()
+  const { data: allComments } = useAllComments()
+  const { data: profiles } = useProfiles()
   const [readIds, setReadIds] = useState<string[]>(() => loadReadIds())
 
   const all = useMemo(() => {
@@ -47,8 +51,43 @@ export function useAppNotifications() {
       }
     }
 
+    // Comment activity: tell a meal's poster when someone else comments on it,
+    // and tell anyone else who has already commented when a new voice joins the
+    // thread. Both read off every comment in the cohort, so they need the full
+    // meal list (to find each comment's poster) and the full comment list.
+    if (me) {
+      const mealById = new Map((allMeals ?? []).map((m) => [m.id, m]))
+      const byId = new Map((profiles ?? []).map((p) => [p.id, p]))
+      const commentedMealIds = new Set(
+        (allComments ?? []).filter((c) => c.userId === me.id).map((c) => c.mealId),
+      )
+      const commenterName = (userId: string) => byId.get(userId)?.displayName ?? 'Someone'
+
+      for (const c of allComments ?? []) {
+        if (c.userId === me.id) continue // never notify yourself
+        const meal = mealById.get(c.mealId)
+        if (!meal) continue
+
+        if (meal.userId === me.id) {
+          out.push({
+            id: `comment-mine-${c.id}`,
+            title: `${commenterName(c.userId)} commented on your meal`,
+            body: c.body,
+            href: `/meals/${c.mealId}`,
+          })
+        } else if (commentedMealIds.has(c.mealId)) {
+          out.push({
+            id: `comment-thread-${c.id}`,
+            title: `${commenterName(c.userId)} also commented on a meal you commented on`,
+            body: c.body,
+            href: `/meals/${c.mealId}`,
+          })
+        }
+      }
+    }
+
     return out
-  }, [meals, quest])
+  }, [meals, quest, me, allMeals, allComments, profiles])
 
   const items = useMemo(() => all.filter((n) => !readIds.includes(n.id)), [all, readIds])
 

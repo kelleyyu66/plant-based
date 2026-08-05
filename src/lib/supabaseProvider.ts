@@ -428,6 +428,22 @@ export class SupabaseProvider extends MockProvider implements DataProvider {
     }))
   }
 
+  async listAllComments(): Promise<Comment[]> {
+    const client = requireClient()
+    const { data, error } = await client.from('comments').select('*').order('created_at', { ascending: true })
+    if (error) {
+      console.error('[supabase] failed to list all comments', { error })
+      throw error
+    }
+    return ((data ?? []) as Row[]).map((r) => ({
+      id: r.id as string,
+      mealId: r.meal_id as string,
+      userId: r.user_id as string,
+      body: r.body as string,
+      createdAt: r.created_at as string,
+    }))
+  }
+
   async addComment(mealId: string, body: string): Promise<Comment> {
     const client = requireClient()
     const uid = await this.currentUserId()

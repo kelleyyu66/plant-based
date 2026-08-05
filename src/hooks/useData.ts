@@ -17,6 +17,7 @@ export const qk = {
   dailyQuest: (date: string) => ['dailyQuest', date] as const,
   impact: ['impact'] as const,
   comments: (id: string) => ['comments', id] as const,
+  allComments: ['comments', 'all'] as const,
   reactions: (id: string) => ['reactions', id] as const,
 }
 
@@ -47,6 +48,8 @@ export const useUserPoints = (id: string) =>
   useQuery({ queryKey: ['userPoints', id], queryFn: () => data.userPoints(id), enabled: !!id })
 export const useComments = (mealId: string) =>
   useQuery({ queryKey: qk.comments(mealId), queryFn: () => data.listComments(mealId), enabled: !!mealId })
+/** Every comment across the cohort — comment-count badges + comment notifications. */
+export const useAllComments = () => useQuery({ queryKey: qk.allComments, queryFn: () => data.listAllComments() })
 export const useReactions = (mealId: string) =>
   useQuery({ queryKey: qk.reactions(mealId), queryFn: () => data.listReactions(mealId), enabled: !!mealId })
 
@@ -113,7 +116,10 @@ export function useAddComment(mealId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (body: string) => data.addComment(mealId, body),
-    onSuccess: () => qc.invalidateQueries({ queryKey: qk.comments(mealId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.comments(mealId) })
+      qc.invalidateQueries({ queryKey: qk.allComments })
+    },
   })
 }
 

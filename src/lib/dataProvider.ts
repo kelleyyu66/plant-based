@@ -84,6 +84,9 @@ export interface DataProvider {
 
   // meal social
   listComments(mealId: string): Promise<Comment[]>
+  /** Every comment across every meal — powers comment-count badges and the
+   *  "someone commented" notifications, which need to scan the whole cohort. */
+  listAllComments(): Promise<Comment[]>
   addComment(mealId: string, body: string): Promise<Comment>
   listReactions(mealId: string): Promise<Reaction[]>
   toggleReaction(mealId: string, emoji: string): Promise<void>

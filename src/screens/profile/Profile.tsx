@@ -10,8 +10,9 @@ import { AboutYou } from './AboutYou'
 import { CritterPicker } from './CritterPicker'
 import { NotificationBell } from '@/components/Notifications'
 import { useAppNotifications } from '@/hooks/useAppNotifications'
-import { useMyProfile, useUserMeals, useUserPoints } from '@/hooks/useData'
+import { useAllComments, useMyProfile, useUserMeals, useUserPoints } from '@/hooks/useData'
 import { earnedPointsByMeal } from '@/lib/dailyQuest'
+import { commentCountsByMeal } from '@/lib/comments'
 import { data } from '@/lib/dataProvider'
 import { cowNameOr } from '@/content/cowNames'
 
@@ -20,8 +21,10 @@ export function Profile() {
   const { data: profile } = useMyProfile()
   const { data: meals } = useUserMeals('me')
   const { data: points = 0 } = useUserPoints('me')
+  const { data: allComments } = useAllComments()
   const notifications = useAppNotifications()
   const earned = useMemo(() => earnedPointsByMeal(meals ?? []), [meals])
+  const commentCounts = useMemo(() => commentCountsByMeal(allComments ?? []), [allComments])
   const [pickerOpen, setPickerOpen] = useState(false)
 
   if (!profile) return null
@@ -79,7 +82,14 @@ export function Profile() {
       {meals && meals.length > 0 ? (
         <div className="grid grid-cols-2 gap-3 px-6">
           {meals.map((m) => (
-            <MealCard key={m.id} meal={m} author={profile} points={earned.get(m.id)} onClick={() => nav(`/meals/${m.id}`)} />
+            <MealCard
+              key={m.id}
+              meal={m}
+              author={profile}
+              points={earned.get(m.id)}
+              commentCount={commentCounts.get(m.id)}
+              onClick={() => nav(`/meals/${m.id}`)}
+            />
           ))}
         </div>
       ) : (
