@@ -126,7 +126,7 @@ export function LogMealSheet({ open, onClose, onLogged, meal, onDeleted }: LogMe
     tofu: 'Includes tofu',
     edamame: 'Includes edamame',
     five_colours: 'Includes 5 colours',
-    tempeh: 'Includes tempeh',
+    green_vegetables: 'Includes green vegetables',
     cooked_at_home: 'Cooked or eaten at home',
   }
 

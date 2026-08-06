@@ -2,7 +2,7 @@ export type MealTier = 'vegan' | 'vegetarian' | 'fish' | 'chicken' | 'pork' | 'b
 export type MealTime = 'breakfast' | 'lunch' | 'dinner'
 export type StartingDiet = 'vegetarian' | 'meat_or_flexitarian'
 export type SpriteVariant = 'regular' | 'hat' | 'balloon'
-export type QuestTag = 'tofu' | 'edamame' | 'five_colours' | 'tempeh' | 'cooked_at_home'
+export type QuestTag = 'tofu' | 'edamame' | 'five_colours' | 'green_vegetables' | 'cooked_at_home'
 export type DailyChallengeKind = QuestTag | 'plant_protein_50g' | 'all_plant_meals'
 
 export const MEAL_TIERS: MealTier[] = ['vegan', 'vegetarian', 'fish', 'chicken', 'pork', 'beef']

@@ -37,7 +37,7 @@ export const DAILY_CHALLENGES: DailyChallenge[] = [
   { dayIndex: 0, kind: 'tofu', title: 'Eat tofu' },
   { dayIndex: 1, kind: 'edamame', title: 'Eat edamame' },
   { dayIndex: 2, kind: 'five_colours', title: 'Eat 5 colours today' },
-  { dayIndex: 3, kind: 'tempeh', title: 'Eat tempeh' },
+  { dayIndex: 3, kind: 'green_vegetables', title: 'Eat green vegetables' },
   { dayIndex: 4, kind: 'cooked_at_home', title: 'Eat or cook all three meals at home' },
   { dayIndex: 5, kind: 'all_plant_meals', title: 'Make all meals plant-based' },
 ]
